@@ -1,0 +1,33 @@
+@host = http://localhost:3000
+
+
+curl -X POST http://localhost:3000/api/auth/register \
+-H "Content-Type: application/json" \
+-d '{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "securepassword123"
+}'
+
+
+##############
+#  USUARIOS  #
+##############
+
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "plata",
+    "email": "plata@gmail.com",
+    "password": "a1b2c3d6"
+}   
+
+###
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{    
+    "email": "norah1@gmail.com",
+    "password": "a1b2c3d4"
+} 
