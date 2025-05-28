@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { createGuideUser } = require('../../controllers/guideUser.controller');
-// const { checkToken } = require('../../middlewares/auth.middlewares');
+const { checkToken, checkGuideRole } = require('../../middlewares/auth.middleware');
 
-router.post('/', createGuideUser);
+router.post('/', checkToken, checkGuideRole, createGuideUser);
 
 module.exports = router;

@@ -50,6 +50,21 @@ const User = {
     } catch (error) {
       throw new Error(`Error finding user by email: ${error.message}`);
     }
+  },
+
+  async findByEmailWithRole(email) {
+    try {
+      const [rows] = await pool.query(
+        'SELECT u.user_id, u.email, u.password_hash, p.role ' +
+        'FROM users u ' +
+        'JOIN profiles p ON u.user_id = p.user_id ' +
+        'WHERE u.email = ?',
+        [email]
+      );
+      return rows[0];
+    } catch (error) {
+      throw new Error(`Error finding user with role: ${error.message}`);
+    }
   }
 };
 
