@@ -110,4 +110,3 @@ Authorization: Bearer eyJhbGciOiJIUzI1...
 
 ---
 
-¿Quieres que lo convierta también a un archivo `.md` descargable o lo integre con Swagger UI?
