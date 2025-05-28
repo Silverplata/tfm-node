@@ -2,12 +2,16 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 
 const User = {
-  async create({ username, email, password }) {
+  async register({ username, email, password, role }) {
     try {
+      // Validar el rol
+      const validRoles = ['user', 'guide'];
+      const userRole = validRoles.includes(role) ? role : 'user'; // Por defecto, 'user'
+
       // Encriptar la contraseña
       const passwordHash = await bcrypt.hash(password, 10);
 
-      // Iniciar transacción para crear usuario y perfil
+      // Iniciar transacción
       const connection = await pool.getConnection();
       try {
         await connection.beginTransaction();
@@ -20,14 +24,14 @@ const User = {
 
         const userId = userResult.insertId;
 
-        // Insertar perfil asociado en la tabla profiles (con availability opcional)
+        // Insertar perfil con el rol
         await connection.query(
-          'INSERT INTO profiles (user_id, availability) VALUES (?, ?)',
-          [userId, null] // Puedes ajustar availability según tus necesidades
+          'INSERT INTO profiles (user_id, availability, role) VALUES (?, ?, ?)',
+          [userId, null, userRole]
         );
 
         await connection.commit();
-        return { userId, username, email };
+        return { userId, username, email, role: userRole };
       } catch (error) {
         await connection.rollback();
         throw error;
@@ -35,7 +39,7 @@ const User = {
         connection.release();
       }
     } catch (error) {
-      throw new Error(`Error creating user: ${error.message}`);
+      throw new Error(`Error registering user: ${error.message}`);
     }
   },
 
