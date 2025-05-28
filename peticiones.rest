@@ -1,0 +1,189 @@
+# Base URL para todas las peticiones, apunta al servidor Express local.
+# En producción, reemplazar con el dominio real (por ejemplo, https://api.tuapp.com).
+@host = http://localhost:3000
+
+# Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
+# Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
+# Para pruebas reales, generar un token con POST /api/auth/login.
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsInJvbGUiOiJndWlkZSIsImlhdCI6MTc0ODQ2NTU2MywiZXhwIjoxNzQ4NDY5MTYzfQ.jSt-MaLYb7OcfHbe9QbJVgi7i1X3hyyaePcoCJ7OSeg
+
+# Petición en formato curl para registrar un nuevo usuario estándar.
+# - Propósito: Crear una cuenta para un usuario con TDAH que gestionará sus propias rutinas.
+# - Datos:
+#   - username: "johndoe" (nombre de usuario único).
+#   - email: "john@example.com" (correo único).
+#   - password: "securepassword123" (contraseña, se encripta con bcrypt).
+#   - role: No especificado, se asigna "user" por defecto.
+# - Respuesta esperada (201):
+#   {
+#     "message": "User registered successfully",
+#     "user": {
+#       "userId": 9, // Depende del próximo ID disponible
+#       "username": "johndoe",
+#       "email": "john@example.com",
+#       "role": "user"
+#     }
+#   }
+# - Errores:
+#   - 400: Faltan campos obligatorios.
+#   - 409: Email ya registrado.
+#   - 500: Error en la base de datos (Aiven).
+# - Relevancia: Punto de entrada para usuarios con TDAH, permite crear cuentas para gestionar rutinas.
+curl -X POST http://localhost:3000/api/auth/register \
+-H "Content-Type: application/json" \
+-d '{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "securepassword123"
+}'
+
+
+##############
+#  USUARIOS  #
+##############
+
+# Petición para registrar un guía.
+# - Propósito: Crear una cuenta para un guía que apoyará a usuarios con TDAH, por ejemplo, gestionando rutinas para personas con movilidad reducida.
+# - Datos:
+#   - username: "alfonso" (nombre de usuario único).
+#   - email: "alfonso@gmail.com" (correo único).
+#   - password: "a1b2c3d6" (contraseña).
+#   - role: "guide" (especifica que es un guía).
+# - Respuesta esperada (201):
+#   {
+#     "message": "User registered successfully",
+#     "user": {
+#       "userId": 10, // Ejemplo
+#       "username": "alfonso",
+#       "email": "alfonso@gmail.com",
+#       "role": "guide"
+#     }
+#   }
+# - Errores: Igual que la petición anterior.
+# - Relevancia: Habilita cuentas para guías, quienes podrán vincularse con usuarios y gestionar sus rutinas.
+POST {{host}}/api/auth/register 
+Content-Type: application/json
+
+{
+    "username": "alfonso",
+    "email": "alfonso@gmail.com",
+    "password": "a1b2c3d6",
+    "role": "guide"
+}  
+
+###
+
+# Petición para autenticar al usuario "norah1".
+# - Propósito: Iniciar sesión para obtener un token JWT, necesario para acceder a rutas protegidas.
+# - Datos:
+#   - email: "norah1@gmail.com" (correo registrado).
+#   - password: "a1b2c3d4" (contraseña registrada).
+# - Respuesta esperada (200):
+#   {
+#     "message": "Login successful",
+#     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#     "user": {
+#       "userId": 1, // Asumiendo que norah1 tiene userId: 1
+#       "email": "norah1@gmail.com",
+#       "role": "user" // Asumiendo rol "user"
+#     }
+#   }
+# - Errores:
+#   - 400: Faltan email o password.
+#   - 401: Credenciales inválidas.
+#   - 500: Error en la base de datos.
+# - Relevancia: Permite a usuarios con TDAH acceder a la aplicación, autenticándose para gestionar sus rutinas.
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{    
+    "email": "norah1@gmail.com",
+    "password": "a1b2c3d4"
+} 
+
+
+###
+
+# Petición para crear una relación guía-usuario (sin token, fallará).
+# - Propósito: Intentar vincular un guía (userId: 8) con un usuario (userId: 2) en la tabla guide_user.
+# - Datos:
+#   - guideId: 8 (ID del guía, debe tener role: "guide").
+#   - userId: 2 (ID del usuario).
+# - Nota: Esta petición fallará porque falta el encabezado Authorization con un token JWT.
+# - Respuesta esperada (401):
+#   {
+#     "message": "No token provided"
+#   }
+# - Errores:
+#   - 401: Falta token o es inválido.
+#   - 403: El usuario no es guía.
+#   - 400: guideId o userId inválidos.
+#   - 409: Relación ya existe.
+# - Relevancia: Demuestra la necesidad de autenticación para acciones protegidas, como vincular guías con usuarios para gestionar rutinas.
+POST {{host}}/api/guide-user
+Content-Type: application/json
+
+{
+    "guideId": 8,
+    "userId": 2
+}
+
+###
+
+# Petición para autenticar al guía "alfonso".
+# - Propósito: Iniciar sesión como guía para obtener un token JWT, que permitirá realizar acciones protegidas como crear relaciones guía-usuario.
+# - Datos:
+#   - email: "alfonso@gmail.com" (correo registrado en la segunda petición).
+#   - password: "a1b2c3d6" (contraseña registrada).
+# - Respuesta esperada (200):
+#   {
+#     "message": "Login successful",
+#     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#     "user": {
+#       "userId": 10, // Asumiendo que alfonso tiene userId: 10
+#       "email": "alfonso@gmail.com",
+#       "role": "guide"
+#     }
+#   }
+# - Errores: Igual que el login anterior.
+# - Relevancia: Habilita el acceso seguro para guías, permitiendo acciones como vincularse con usuarios para apoyar sus rutinas.
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "alfonso@gmail.com",
+    "password": "a1b2c3d6"
+}
+
+###
+
+# Petición para crear una relación guía-usuario con autenticación.
+# - Propósito: Vincular un guía (userId: 7) con un usuario (userId: 1) en la tabla guide_user, usando un token JWT.
+# - Datos:
+#   - guideId: 7 (ID del guía, por ejemplo, "plata2" con role: "guide").
+#   - userId: 1 (ID del usuario, por ejemplo, "norah1").
+# - Autenticación: Usa el token predefinido (@token), que corresponde a userId: 8.
+# - Nota: Esta petición puede fallar porque el token es para userId: 8, pero guideId es 7. El token debe corresponder al guideId enviado (userId: 7). Para corregir, obtener un token con login para userId: 7.
+# - Respuesta esperada (201, si el token fuera válido para userId: 7):
+#   {
+#     "message": "Guide-user relationship created successfully",
+#     "relation": {
+#       "guideUserId": 2, // Ejemplo
+#       "guideId": 7,
+#       "userId": 1
+#     }
+#   }
+# - Errores:
+#   - 401: Token inválido o expirado.
+#   - 403: El usuario autenticado no es guía.
+#   - 400: guideId no es guía, userId no existe, o son iguales.
+#   - 409: Relación ya existe.
+# - Relevancia: Permite a guías vincularse con usuarios para gestionar sus rutinas, apoyando a personas con TDAH o limitaciones.
+POST {{host}}/api/guide-user
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "guideId": 7,
+    "userId": 1
+}
