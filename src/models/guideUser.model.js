@@ -14,13 +14,13 @@ const GuideUser = {
       );
 
       if (!guideRows[0]) {
-        throw new Error('Guide not found or does not have guide role');
+        throw new Error('Guia no encontrada o no es un guia');
       }
       if (!userRows[0]) {
-        throw new Error('User not found');
+        throw new Error('Usuario no encontrado');
       }
       if (guideId === userId) {
-        throw new Error('Guide and user cannot be the same');
+        throw new Error('Guia y usuario no pueden ser el mismo');
       }
 
       // Insertar relación
@@ -32,9 +32,9 @@ const GuideUser = {
       return { guideUserId: result.insertId, guideId, userId };
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
-        throw new Error('This guide-user relationship already exists');
+        throw new Error('Esta relación ya existe entre el guia y el usuario');
       }
-      throw new Error(`Error creating guide-user relationship: ${error.message}`);
+      throw new Error(`Error al crear la relacion guia-usuario: ${error.message}`);
     }
   },
 
@@ -46,7 +46,7 @@ const GuideUser = {
       );
       return rows;
     } catch (error) {
-      throw new Error(`Error finding guide-user relationships: ${error.message}`);
+      throw new Error(`Error encontrando la relacion guia-usuario: ${error.message}`);
     }
   },
 
@@ -58,7 +58,7 @@ const GuideUser = {
       );
       return rows;
     } catch (error) {
-      throw new Error(`Error finding guide-user relationships: ${error.message}`);
+      throw new Error(`Error encontrando la relacion guia-usuario: ${error.message}`);
     }
   }
 };

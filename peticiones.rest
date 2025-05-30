@@ -5,7 +5,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsInJvbGUiOiJndWlkZSIsImlhdCI6MTc0ODQ2NTU2MywiZXhwIjoxNzQ4NDY5MTYzfQ.jSt-MaLYb7OcfHbe9QbJVgi7i1X3hyyaePcoCJ7OSeg
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksInJvbGUiOiJndWlkZSIsImlhdCI6MTc0ODU5NzIzMywiZXhwIjoxNzQ4NjAwODMzfQ.B1ApOka9nxHsf0pXC82BIDytJOQvD8fpPuNmC_1drZE
 
 # Petición en formato curl para registrar un nuevo usuario estándar.
 # - Propósito: Crear una cuenta para un usuario con TDAH que gestionará sus propias rutinas.
@@ -65,8 +65,8 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-    "username": "alfonso",
-    "email": "alfonso@gmail.com",
+    "username": "alumno1",
+    "email": "alumno1@gmail.com",
     "password": "a1b2c3d6",
     "role": "guide"
 }  
@@ -97,36 +97,10 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {    
-    "email": "norah1@gmail.com",
-    "password": "a1b2c3d4"
+    "email": "alumno1@gmail.com",
+    "password": "a1b2c3d6"
 } 
 
-
-###
-
-# Petición para crear una relación guía-usuario (sin token, fallará).
-# - Propósito: Intentar vincular un guía (userId: 8) con un usuario (userId: 2) en la tabla guide_user.
-# - Datos:
-#   - guideId: 8 (ID del guía, debe tener role: "guide").
-#   - userId: 2 (ID del usuario).
-# - Nota: Esta petición fallará porque falta el encabezado Authorization con un token JWT.
-# - Respuesta esperada (401):
-#   {
-#     "message": "No token provided"
-#   }
-# - Errores:
-#   - 401: Falta token o es inválido.
-#   - 403: El usuario no es guía.
-#   - 400: guideId o userId inválidos.
-#   - 409: Relación ya existe.
-# - Relevancia: Demuestra la necesidad de autenticación para acciones protegidas, como vincular guías con usuarios para gestionar rutinas.
-POST {{host}}/api/guide-user
-Content-Type: application/json
-
-{
-    "guideId": 8,
-    "userId": 2
-}
 
 ###
 
@@ -184,6 +158,6 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "guideId": 7,
+    "guideId": 9,
     "userId": 1
 }
