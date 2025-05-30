@@ -42,19 +42,19 @@ const authController = {
 
       // Validaciones básicas
       if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password son requeridos' });
+        return res.status(400).json({ message: 'Email y password son incorrectos' });
       }
 
       // Buscar usuario con rol
       const user = await User.findByEmailWithRole(email);
       if (!user) {
-        return res.status(401).json({ message: 'Email and password son requeridos' });
+        return res.status(401).json({ message: 'Email y password son incorrectos' });
       }
 
       // Verificar contraseña
       const isPasswordValid = await bcrypt.compare(password, user.password_hash);
       if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Email and password son requeridos' });
+        return res.status(401).json({ message: 'Email y password son incorrectos' });
       }
 
       // Generar JWT

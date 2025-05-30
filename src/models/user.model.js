@@ -39,7 +39,7 @@ const User = {
         connection.release();
       }
     } catch (error) {
-      throw new Error(`Error registering user: ${error.message}`);
+      throw new Error(`Error al registrar usuario: ${error.message}`);
     }
   },
 
@@ -48,7 +48,7 @@ const User = {
       const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
       return rows[0];
     } catch (error) {
-      throw new Error(`Error finding user by email: ${error.message}`);
+      throw new Error(`Error al encontrar usuario por mail: ${error.message}`);
     }
   },
 
@@ -63,7 +63,7 @@ const User = {
       );
       return rows[0];
     } catch (error) {
-      throw new Error(`Error finding user with role: ${error.message}`);
+      throw new Error(`Error al encontrar usuario por rol: ${error.message}`);
     }
   }
 };

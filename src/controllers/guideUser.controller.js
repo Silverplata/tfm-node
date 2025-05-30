@@ -7,7 +7,7 @@ const guideUserController = {
 
       // Validaciones básicas
       if (!guideId || !userId) {
-        return res.status(400).json({ message: 'guideId and userId are required' });
+        return res.status(400).json({ message: 'guideId y userId son requeridos' });
       }
 
       // Crear relación
@@ -15,7 +15,7 @@ const guideUserController = {
 
       // Respuesta exitosa
       res.status(201).json({
-        message: 'Guide-user relationship created successfully',
+        message: 'Guia-usuraio relacion creada correctamente',
         relation: {
           guideUserId: newRelation.guideUserId,
           guideId: newRelation.guideId,
