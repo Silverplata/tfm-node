@@ -1,3 +1,4 @@
+// src/controllers/guideUser.controller.js
 const GuideUser = require('../models/guideUser.model');
 
 const guideUserController = {
@@ -10,12 +11,17 @@ const guideUserController = {
         return res.status(400).json({ message: 'guideId y userId son requeridos' });
       }
 
+      // Verificar que el usuario autenticado es el guía
+      if (req.user.userId !== guideId) {
+        return res.status(403).json({ message: 'Solo puedes crear relaciones para ti mismo como guía' });
+      }
+
       // Crear relación
       const newRelation = await GuideUser.create({ guideId, userId });
 
       // Respuesta exitosa
       res.status(201).json({
-        message: 'Guia-usuraio relacion creada correctamente',
+        message: 'Relación guía-usuario creada correctamente',
         relation: {
           guideUserId: newRelation.guideUserId,
           guideId: newRelation.guideId,

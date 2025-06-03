@@ -5,7 +5,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjksInJvbGUiOiJndWlkZSIsImlhdCI6MTc0ODU5NzIzMywiZXhwIjoxNzQ4NjAwODMzfQ.B1ApOka9nxHsf0pXC82BIDytJOQvD8fpPuNmC_1drZE
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI0LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NDg5OTMwNTcsImV4cCI6MTc0ODk5NjY1N30.cpJi28A8GgRIC6Cxx5zMjQs76DxrltWbWb2k0_3-aAg
 
 # Petición en formato curl para registrar un nuevo usuario estándar.
 # - Propósito: Crear una cuenta para un usuario con TDAH que gestionará sus propias rutinas.
@@ -61,15 +61,21 @@ curl -X POST http://localhost:3000/api/auth/register \
 #   }
 # - Errores: Igual que la petición anterior.
 # - Relevancia: Habilita cuentas para guías, quienes podrán vincularse con usuarios y gestionar sus rutinas.
-POST {{host}}/api/auth/register 
+POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-    "username": "alumno1",
-    "email": "alumno1@gmail.com",
-    "password": "a1b2c3d6",
-    "role": "guide"
-}  
+  "username": "luissaban",
+  "email": "luis@gmail.com",
+  "password": "a1b2c3d6",
+  "first_name": "luis",
+  "last_name": "saban",
+  "age": 35,
+  "num_tel": "612343278",
+  "gender": "Masculino",
+  "image": "luis_profile.jpg",
+  "role": "guide"
+}
 
 ###
 
@@ -97,7 +103,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {    
-    "email": "alumno1@gmail.com",
+    "email": "luis@gmail.com",
     "password": "a1b2c3d6"
 } 
 
@@ -125,7 +131,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "alfonso@gmail.com",
+    "email": "alumno1@gmail.com",
     "password": "a1b2c3d6"
 }
 
@@ -158,6 +164,6 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "guideId": 9,
-    "userId": 1
+    "guideId": 24,
+    "userId": 23
 }
