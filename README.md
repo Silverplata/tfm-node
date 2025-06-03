@@ -19,10 +19,13 @@ Registra un nuevo usuario o guía.
 
 ```json
 {
-  "username": "juan123",
-  "email": "juan@example.com",
-  "password": "123456",
-  "role": "user" // o "guide"
+  "message": "Usuario registrado satisfactoriamente",
+  "user": {
+    "userId": 1,
+    "username": "alumno1",
+    "email": "alumno1@gmail.com",
+    "role": "user"
+  }
 }
 ```
 
@@ -54,14 +57,14 @@ Inicia sesión y devuelve un token JWT.
 
   ```json
   {
-    "message": "Inicio de sesión exitoso",
-    "token": "eyJhbGciOiJIUzI1...",
+    "message": "Login satisfactorio",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
-      "userId": 12,
-      "email": "juan@example.com",
-      "role": "user"
+      "userId": 2,
+      "email": "alumno2@gmail.com",
+      "role": "guide"
     }
-  }
+  } 
   ```
 
 * `400 Bad Request`: Faltan campos requeridos.
@@ -98,6 +101,15 @@ Permite a un guía vincularse con un usuario.
 * `409 Conflict`: Relación ya existente.
 * `500 Internal Server Error`: Error del servidor.
 
+
+  {
+    "message": "Relación guía-usuario creada correctamente",
+    "relation": {
+      "guideUserId": 1,
+      "guideId": 2,
+      "userId": 1
+    }
+  }
 ---
 
 ## 🔒 Seguridad

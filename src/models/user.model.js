@@ -1,12 +1,13 @@
+// src/models/user.model.js
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 
 const User = {
-  async register({ username, email, password, role }) {
+  async register({ username, email, password, first_name, last_name, age, num_tel, gender, image, role }) {
     try {
       // Validar el rol
       const validRoles = ['user', 'guide'];
-      const userRole = validRoles.includes(role) ? role : 'user'; // Por defecto, 'user'
+      const userRole = validRoles.includes(role) ? role : 'user';
 
       // Encriptar la contraseña
       const passwordHash = await bcrypt.hash(password, 10);
@@ -18,16 +19,16 @@ const User = {
 
         // Insertar usuario en la tabla users
         const [userResult] = await connection.query(
-          'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-          [username, email, passwordHash]
+          'INSERT INTO users (username, email, password_hash, first_name, last_name, age, num_tel, gender, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [username, email, passwordHash, first_name, last_name, age, num_tel, gender, image || null]
         );
 
         const userId = userResult.insertId;
 
         // Insertar perfil con el rol
         await connection.query(
-          'INSERT INTO profiles (user_id, availability, role) VALUES (?, ?, ?)',
-          [userId, null, userRole]
+          'INSERT INTO profiles (user_id, availability, role, color_palette) VALUES (?, ?, ?, ?)',
+          [userId, null, userRole, null]
         );
 
         await connection.commit();

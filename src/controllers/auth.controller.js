@@ -1,3 +1,4 @@
+// src/controllers/auth.controller.js
 const User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -5,11 +6,22 @@ const jwt = require('jsonwebtoken');
 const authController = {
   async register(req, res, next) {
     try {
-      const { username, email, password, role } = req.body;
+      const { username, email, password, first_name, last_name, age, num_tel, gender, image, role } = req.body;
 
       // Validaciones básicas
-      if (!username || !email || !password) {
-        return res.status(400).json({ message: 'Usuario, Email and password son requeridos' });
+      if (!username || !email || !password || !first_name || !last_name || !age || !num_tel || !gender) {
+        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+      }
+
+      // Validar formato
+      if (!/^\d{9}$/.test(num_tel)) {
+        return res.status(400).json({ message: 'Número de teléfono inválido' });
+      }
+      if (!['Masculino', 'Femenino', 'Otro'].includes(gender)) {
+        return res.status(400).json({ message: 'Género inválido' });
+      }
+      if (age < 18) {
+        return res.status(400).json({ message: 'Debes ser mayor de 18 años' });
       }
 
       // Verificar si el email ya está registrado
@@ -19,11 +31,11 @@ const authController = {
       }
 
       // Crear usuario
-      const newUser = await User.register({ username, email, password, role });
+      const newUser = await User.register({ username, email, password, first_name, last_name, age, num_tel, gender, image, role });
 
       // Respuesta exitosa
       res.status(201).json({
-        message: 'Userio registrado satisfactoriamente',
+        message: 'Usuario registrado satisfactoriamente',
         user: {
           userId: newUser.userId,
           username: newUser.username,
@@ -42,26 +54,26 @@ const authController = {
 
       // Validaciones básicas
       if (!email || !password) {
-        return res.status(400).json({ message: 'Email y password son incorrectos' });
+        return res.status(400).json({ message: 'Email y password son requeridos' });
       }
 
       // Buscar usuario con rol
       const user = await User.findByEmailWithRole(email);
       if (!user) {
-        return res.status(401).json({ message: 'Email y password son incorrectos' });
+        return res.status(401).json({ message: 'Credenciales inválidas' });
       }
 
       // Verificar contraseña
       const isPasswordValid = await bcrypt.compare(password, user.password_hash);
       if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Email y password son incorrectos' });
+        return res.status(401).json({ message: 'Credenciales inválidas' });
       }
 
       // Generar JWT
       const token = jwt.sign(
         { userId: user.user_id, role: user.role },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' } // Token expira en 1 hora
+        { expiresIn: '1h' }
       );
 
       // Respuesta exitosa
