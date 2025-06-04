@@ -6,6 +6,13 @@ const guideUserController = {
     try {
       const { guideId, userId } = req.body;
 
+      // Validar que el guía y el usuario existen
+      if (!guideRows[0]) {
+        return res.status(400).json({ message: 'El guía no existe o no tiene rol de guía' });
+      }
+      if (!userRows[0]) {
+        return res.status(400).json({ message: 'El usuario no existe' });
+    }
       // Validaciones básicas
       if (!guideId || !userId) {
         return res.status(400).json({ message: 'guideId y userId son requeridos' });

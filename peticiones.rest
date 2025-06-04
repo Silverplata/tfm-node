@@ -5,7 +5,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI0LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NDg5OTMwNTcsImV4cCI6MTc0ODk5NjY1N30.cpJi28A8GgRIC6Cxx5zMjQs76DxrltWbWb2k0_3-aAg
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NDkwNTk3MjIsImV4cCI6MTc0OTA2MzMyMn0.di87IsyViOS_TSLKeMLMzPvZH-P7E0lxmsjtidLKdhs
 
 # Petición en formato curl para registrar un nuevo usuario estándar.
 # - Propósito: Crear una cuenta para un usuario con TDAH que gestionará sus propias rutinas.
@@ -65,15 +65,15 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "luissaban",
-  "email": "luis@gmail.com",
+  "username": "andres",
+  "email": "andres@gmail.com",
   "password": "a1b2c3d6",
-  "first_name": "luis",
-  "last_name": "saban",
+  "first_name": "andres",
+  "last_name": "tea",
   "age": 35,
   "num_tel": "612343278",
-  "gender": "Masculino",
-  "image": "luis_profile.jpg",
+  "gender": "Hombre",
+  "image": "andres_profile.jpg",
   "role": "guide"
 }
 
@@ -103,7 +103,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {    
-    "email": "luis@gmail.com",
+    "email": "andres@gmail.com",
     "password": "a1b2c3d6"
 } 
 
@@ -164,6 +164,6 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "guideId": 24,
-    "userId": 23
+    "guideId": 25,
+    "userId": 6
 }

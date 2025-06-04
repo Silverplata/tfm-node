@@ -17,11 +17,11 @@ const authController = {
       if (!/^\d{9}$/.test(num_tel)) {
         return res.status(400).json({ message: 'Número de teléfono inválido' });
       }
-      if (!['Masculino', 'Femenino', 'Otro'].includes(gender)) {
+      if (!['Hombre', 'Mujer', 'Otro'].includes(gender)) {
         return res.status(400).json({ message: 'Género inválido' });
       }
-      if (age < 18) {
-        return res.status(400).json({ message: 'Debes ser mayor de 18 años' });
+      if (age < 14) {
+        return res.status(400).json({ message: 'Debes ser mayor de 14 años' });
       }
 
       // Verificar si el email ya está registrado
@@ -60,20 +60,20 @@ const authController = {
       // Buscar usuario con rol
       const user = await User.findByEmailWithRole(email);
       if (!user) {
-        return res.status(401).json({ message: 'Credenciales inválidas' });
+        return res.status(401).json({ message: 'Email y password incorrectos' });
       }
 
       // Verificar contraseña
       const isPasswordValid = await bcrypt.compare(password, user.password_hash);
       if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Credenciales inválidas' });
+        return res.status(401).json({ message: 'Email y password incorrectos' });
       }
 
       // Generar JWT
       const token = jwt.sign(
         { userId: user.user_id, role: user.role },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '5h' }
       );
 
       // Respuesta exitosa
