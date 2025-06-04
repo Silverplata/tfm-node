@@ -29,13 +29,6 @@
 #   - 409: Email ya registrado.
 #   - 500: Error en la base de datos (Aiven).
 # - Relevancia: Punto de entrada para usuarios con TDAH, permite crear cuentas para gestionar rutinas.
-curl -X POST http://localhost:3000/api/auth/register \
--H "Content-Type: application/json" \
--d '{
-  "username": "johndoe",
-  "email": "john@example.com",
-  "password": "securepassword123"
-}'
 
 
 ##############
@@ -65,16 +58,16 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "andres",
-  "email": "andres@gmail.com",
+  "username": "peter",
+  "email": "peter@gmail.com",
   "password": "a1b2c3d6",
-  "first_name": "andres",
-  "last_name": "tea",
+  "first_name": "peter",
+  "last_name": "plata",
   "age": 35,
-  "num_tel": "612343278",
+  "num_tel": "612345478",
   "gender": "Hombre",
-  "image": "andres_profile.jpg",
-  "role": "guide"
+  "image": "peter_profile.jpg",
+  "role": "user"
 }
 
 ###
@@ -103,7 +96,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {    
-    "email": "andres@gmail.com",
+    "email": "peter@gmail.com",
     "password": "a1b2c3d6"
 } 
 
