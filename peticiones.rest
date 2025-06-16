@@ -161,6 +161,9 @@ Authorization: Bearer {{token}}
     "userId": 6
 }
 
+##############
+#  PROFILES  #
+##############
 
 ### Obtener perfil
 GET {{host}}/api/users/profile
@@ -173,7 +176,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "first_name": "María",
+  "last_name": "Quesada",
   "num_tel": "611223344",
   "color_palette": {"primary": "#FF6F61", "secondary": "#4682B4"}
 }
@@ -188,8 +191,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "interest_name": "Danza",
-  "priority": "high"
+  "interest_name": "Cine",
+  "priority": "medium"
 }
 
 ### Actualizar disponibilidad (solo guías)
@@ -200,3 +203,49 @@ Authorization: Bearer {{token}}
 {
   "availability": "Lunes a Viernes, 10:00-14:00"
 }
+
+###################
+#  PROFILE-GOALS  #
+##################
+
+### Obtener todos los objetivos
+GET {{host}}/api/profile-goals
+Authorization: Bearer {{token}}
+
+
+### Obtener un objetivo por ID
+GET {{host}}/api/profile-goals/
+Authorization: Bearer {{token}}
+
+
+### Crear un nuevo objetivo
+POST {{host}}/api/profile-goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Leer un libro",
+  "goal_type": "Aprendizaje",
+  "description": "Leer 20 páginas al día",
+  "target_hours_weekly": 4,
+  "status": "active",
+  "progress": 0,
+  "deadline": "2025-08-01"
+}
+
+
+### Actualizar un objetivo
+PUT {{host}}/api/profile-goals/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "progress": 50,
+  "status": "active",
+  "deadline": "2025-07-20"
+}
+
+
+### Eliminar un objetivo
+DELETE {{host}}/api/profile-goals/1
+Authorization: Bearer {{token}}
