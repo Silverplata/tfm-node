@@ -214,7 +214,7 @@ Authorization: Bearer {{token}}
 
 
 ### Obtener un objetivo por ID
-GET {{host}}/api/profile-goals/
+GET {{host}}/api/profile-goals/8
 Authorization: Bearer {{token}}
 
 
@@ -224,10 +224,10 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name": "Leer un libro",
-  "goal_type": "Aprendizaje",
-  "description": "Leer 20 páginas al día",
-  "target_hours_weekly": 4,
+  "name": "Pintar un cuadro",
+  "goal_type": "artistico",
+  "description": "Pintar un cuadro al óleo",
+  "target_hours_weekly": 2,
   "status": "active",
   "progress": 0,
   "deadline": "2025-08-01"
@@ -235,17 +235,17 @@ Authorization: Bearer {{token}}
 
 
 ### Actualizar un objetivo
-PUT {{host}}/api/profile-goals/1
+PUT {{host}}/api/profile-goals/8
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "progress": 50,
+  "progress": 30,
   "status": "active",
   "deadline": "2025-07-20"
 }
 
 
 ### Eliminar un objetivo
-DELETE {{host}}/api/profile-goals/1
+DELETE {{host}}/api/profile-goals/6
 Authorization: Bearer {{token}}
