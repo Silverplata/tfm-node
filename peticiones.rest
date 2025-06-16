@@ -5,7 +5,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NDkwNTk3MjIsImV4cCI6MTc0OTA2MzMyMn0.di87IsyViOS_TSLKeMLMzPvZH-P7E0lxmsjtidLKdhs
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTAxMDcwNjUsImV4cCI6MTc1MDEyNTA2NX0.TVEAvs5SdUCfCPWP_roTS0C-kHNrYB6lsbBez3oLsi0
 
 # Petición en formato curl para registrar un nuevo usuario estándar.
 # - Propósito: Crear una cuenta para un usuario con TDAH que gestionará sus propias rutinas.
@@ -58,16 +58,16 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "peter",
-  "email": "peter@gmail.com",
+  "username": "sandra",
+  "email": "sandra@gmail.com",
   "password": "a1b2c3d6",
-  "first_name": "peter",
+  "first_name": "sandra",
   "last_name": "plata",
-  "age": 35,
+  "age": 32,
   "num_tel": "612345478",
-  "gender": "Hombre",
-  "image": "peter_profile.jpg",
-  "role": "user"
+  "gender": "Mujer",
+  "image": "sandra_profile.jpg",
+  "role": "guide"
 }
 
 ###
@@ -124,7 +124,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "alumno1@gmail.com",
+    "email": "sandra@gmail.com",
     "password": "a1b2c3d6"
 }
 
@@ -160,3 +160,92 @@ Authorization: Bearer {{token}}
     "guideId": 25,
     "userId": 6
 }
+
+##############
+#  PROFILES  #
+##############
+
+### Obtener perfil
+GET {{host}}/api/users/profile
+Authorization: Bearer {{token}}
+
+
+### Actualizar perfil
+PUT {{host}}/api/users/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "last_name": "Quesada",
+  "num_tel": "611223344",
+  "color_palette": {"primary": "#FF6F61", "secondary": "#4682B4"}
+}
+
+### Listar intereses
+GET {{host}}/api/users/interests
+Authorization: Bearer {{token}}
+
+### Añadir interés
+POST {{host}}/api/users/interests
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "interest_name": "Cine",
+  "priority": "medium"
+}
+
+### Actualizar disponibilidad (solo guías)
+PUT {{host}}/api/users/availability
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "availability": "Lunes a Viernes, 10:00-14:00"
+}
+
+###################
+#  PROFILE-GOALS  #
+##################
+
+### Obtener todos los objetivos
+GET {{host}}/api/profile-goals
+Authorization: Bearer {{token}}
+
+
+### Obtener un objetivo por ID
+GET {{host}}/api/profile-goals/8
+Authorization: Bearer {{token}}
+
+
+### Crear un nuevo objetivo
+POST {{host}}/api/profile-goals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Pintar un cuadro",
+  "goal_type": "artistico",
+  "description": "Pintar un cuadro al óleo",
+  "target_hours_weekly": 2,
+  "status": "active",
+  "progress": 0,
+  "deadline": "2025-08-01"
+}
+
+
+### Actualizar un objetivo
+PUT {{host}}/api/profile-goals/8
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "progress": 30,
+  "status": "active",
+  "deadline": "2025-07-20"
+}
+
+
+### Eliminar un objetivo
+DELETE {{host}}/api/profile-goals/6
+Authorization: Bearer {{token}}
