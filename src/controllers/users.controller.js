@@ -101,7 +101,7 @@ const getProfile = async (req, res, next) => {
  *                 example: María
  *               last_name:
  *                 type: string
- *                 example: Gómez
+ *                 example: Quesadas
  *               num_tel:
  *                 type: string
  *                 pattern: '^\d{9}$'
@@ -112,10 +112,35 @@ const getProfile = async (req, res, next) => {
  *                 example: Mujer
  *               color_palette:
  *                 type: string
+ *                 description: A JSON string with primary and secondary hex color codes
  *                 example: '{"primary": "#FF6F61", "secondary": "#4682B4"}'
  *               image:
  *                 type: string
  *                 format: binary
+ *               remove_image:
+ *                 type: boolean
+ *                 example: false
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               first_name:
+ *                 type: string
+ *                 example: María
+ *               last_name:
+ *                 type: string
+ *                 example: Quesadas
+ *               num_tel:
+ *                 type: string
+ *                 pattern: '^\d{9}$'
+ *                 example: 611223344
+ *               gender:
+ *                 type: string
+ *                 enum: [Hombre, Mujer, Otro]
+ *                 example: Mujer
+ *               color_palette:
+ *                 type: object
+ *                 example: { primary: "#FF6F61", secondary: "#4682B4" }
  *               remove_image:
  *                 type: boolean
  *                 example: false
@@ -167,12 +192,23 @@ const updateProfile = async (req, res, next) => {
     let { first_name, last_name, num_tel, gender, color_palette, remove_image } = req.body;
     let image = null;
 
-    // Parsear color_palette si se envía como string
+    // Parsear color_palette según Content-Type
     if (color_palette) {
-      try {
-        color_palette = JSON.parse(color_palette);
-      } catch {
-        return res.status(400).json({ message: 'Formato de paleta de colores inválido' });
+      if (req.is('multipart/form-data')) {
+        try {
+          color_palette = JSON.parse(color_palette);
+        } catch {
+          return res.status(400).json({ message: 'Formato de paleta de colores inválido' });
+        }
+      }
+      // Validar que color_palette sea un objeto con primary y secondary
+      if (typeof color_palette !== 'object' || !color_palette.primary || !color_palette.secondary) {
+        return res.status(400).json({ message: 'Paleta de colores inválida, debe incluir primary y secondary' });
+      }
+      // Validar códigos de color hexadecimales
+      const hexColorRegex = /^#([0-9A-F]{3}){1,2}$/i;
+      if (!hexColorRegex.test(color_palette.primary) || !hexColorRegex.test(color_palette.secondary)) {
+        return res.status(400).json({ message: 'Los colores deben ser códigos hexadecimales válidos (#RRGGBB o #RGB)' });
       }
     }
 
@@ -186,15 +222,12 @@ const updateProfile = async (req, res, next) => {
     if (gender && !['Hombre', 'Mujer', 'Otro'].includes(gender)) {
       return res.status(400).json({ message: 'Género inválido' });
     }
-    if (color_palette && (typeof color_palette !== 'object' || !color_palette.primary || !color_palette.secondary)) {
-      return res.status(400).json({ message: 'Paleta de colores inválida, debe incluir primary y secondary' });
-    }
 
     // Manejar imagen
     if (req.file) {
       image = process.env.NODE_ENV === 'production' ? req.file.path : `/uploads/${req.file.filename}`;
     } else if (remove_image === 'true') {
-      image = null; // Eliminar imagen
+      image = null;
     }
 
     const updatedProfile = await User.updateProfile(userId, { first_name, last_name, num_tel, gender, color_palette, image });
