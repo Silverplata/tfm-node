@@ -1,11 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swagger'); // Ruta al archivo swagger.js
+const swaggerSpec = require('./config/swagger');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Servir archivos estáticos desde /uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Configurar Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {

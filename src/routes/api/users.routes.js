@@ -7,16 +7,14 @@ const {
   addInterest,
   updateAvailability,
 } = require('../../controllers/users.controller');
+const { upload } = require('../../config/multer');
 
 router.get('/profile', checkToken, getProfile);
 router.get('/interests', checkToken, getInterests);
 
 router.post('/interests', checkToken, addInterest);
 
-router.put('/profile', checkToken, updateProfile);
+router.put('/profile', checkToken, upload.single('image'), updateProfile);
 router.put('/availability', checkToken, checkGuideRole, updateAvailability);
-
-
-
 
 module.exports = router;

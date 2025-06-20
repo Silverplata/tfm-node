@@ -37,7 +37,7 @@ const User = {
         );
 
         await connection.commit();
-        return { userId, username, email, role: userRole };
+        return { userId, username, email, role: userRole, image };
       } catch (error) {
         await connection.rollback();
         throw error;
@@ -94,7 +94,7 @@ const User = {
     }
   },
 
-  async updateProfile(userId, { first_name, last_name, num_tel, gender, color_palette }) {
+  async updateProfile(userId, { first_name, last_name, num_tel, gender, color_palette, image }) {
     try {
       const connection = await pool.getConnection();
       try {
@@ -118,6 +118,10 @@ const User = {
         if (gender) {
           updateFields.push('gender = ?');
           updateValues.push(gender);
+        }
+        if (image !== undefined) {
+          updateFields.push('image = ?');
+          updateValues.push(image || null);
         }
         if (updateFields.length > 0) {
           updateValues.push(userId);
