@@ -92,7 +92,7 @@ const getProfile = async (req, res, next) => {
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -111,8 +111,14 @@ const getProfile = async (req, res, next) => {
  *                 enum: [Hombre, Mujer, Otro]
  *                 example: Mujer
  *               color_palette:
- *                 type: object
- *                 example: { primary: '#FF6F61', secondary: '#4682B4' }
+ *                 type: string
+ *                 example: '{"primary": "#FF6F61", "secondary": "#4682B4"}'
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *               remove_image:
+ *                 type: boolean
+ *                 example: false
  *     responses:
  *       200:
  *         description: Perfil actualizado exitosamente
@@ -158,10 +164,20 @@ const getProfile = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const { first_name, last_name, num_tel, gender, color_palette } = req.body;
+    let { first_name, last_name, num_tel, gender, color_palette, remove_image } = req.body;
+    let image = null;
+
+    // Parsear color_palette si se envía como string
+    if (color_palette) {
+      try {
+        color_palette = JSON.parse(color_palette);
+      } catch {
+        return res.status(400).json({ message: 'Formato de paleta de colores inválido' });
+      }
+    }
 
     // Validaciones
-    if (!first_name && !last_name && !num_tel && !gender && !color_palette) {
+    if (!first_name && !last_name && !num_tel && !gender && !color_palette && !req.file && remove_image === undefined) {
       return res.status(400).json({ message: 'Al menos un campo debe proporcionarse para actualizar' });
     }
     if (num_tel && !/^\d{9}$/.test(num_tel)) {
@@ -174,7 +190,14 @@ const updateProfile = async (req, res, next) => {
       return res.status(400).json({ message: 'Paleta de colores inválida, debe incluir primary y secondary' });
     }
 
-    const updatedProfile = await User.updateProfile(userId, { first_name, last_name, num_tel, gender, color_palette });
+    // Manejar imagen
+    if (req.file) {
+      image = process.env.NODE_ENV === 'production' ? req.file.path : `/uploads/${req.file.filename}`;
+    } else if (remove_image === 'true') {
+      image = null; // Eliminar imagen
+    }
+
+    const updatedProfile = await User.updateProfile(userId, { first_name, last_name, num_tel, gender, color_palette, image });
     res.status(200).json({
       message: 'Perfil actualizado correctamente',
       profile: {

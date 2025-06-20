@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken');
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -58,8 +58,7 @@ const jwt = require('jsonwebtoken');
  *                 example: user
  *               image:
  *                 type: string
- *                 nullable: true
- *                 example: profile.jpg
+ *                 format: binary
  *     responses:
  *       201:
  *         description: Usuario registrado exitosamente
@@ -81,6 +80,9 @@ const jwt = require('jsonwebtoken');
  *                       type: string
  *                     role:
  *                       type: string
+ *                     image:
+ *                       type: string
+ *                       nullable: true
  *       400:
  *         description: Error en los datos proporcionados
  *       409:
@@ -88,7 +90,8 @@ const jwt = require('jsonwebtoken');
  */
 const register = async (req, res, next) => {
   try {
-    const { username, email, password, first_name, last_name, age, num_tel, gender, image, role } = req.body;
+    const { username, email, password, first_name, last_name, age, num_tel, gender, role } = req.body;
+    let image = null;
 
     // Validaciones básicas
     if (!username || !email || !password || !first_name || !last_name || !age || !num_tel || !gender) {
@@ -104,6 +107,11 @@ const register = async (req, res, next) => {
     }
     if (age < 14) {
       return res.status(400).json({ message: 'Debes ser mayor de 14 años' });
+    }
+
+    // Manejar imagen
+    if (req.file) {
+      image = process.env.NODE_ENV === 'production' ? req.file.path : `/uploads/${req.file.filename}`;
     }
 
     // Verificar si el email ya está registrado
@@ -123,6 +131,7 @@ const register = async (req, res, next) => {
         username: newUser.username,
         email: newUser.email,
         role: newUser.role,
+        image: newUser.image,
       },
     });
   } catch (error) {
