@@ -5,7 +5,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA1MjQ4MDUsImV4cCI6MTc1MDU0MjgwNX0.MwMcpnIVUg13oIMZHHCPULxO4C6VLY9dIo-q5P6vM-g
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA1NDU5MDEsImV4cCI6MTc1MDU2MzkwMX0.yXhfAdkVMnzm2e7z_tmos6P3jXHwzHILz3h8B2e1u-4
 
 # Petición en formato curl para registrar un nuevo usuario estándar.
 # - Propósito: Crear una cuenta para un usuario con TDAH que gestionará sus propias rutinas.
@@ -200,14 +200,169 @@ Content-Type: application/json
 #   - 400: guideId no es guía, userId no existe, o son iguales.
 #   - 409: Relación ya existe.
 # - Relevancia: Permite a guías vincularse con usuarios para gestionar sus rutinas, apoyando a personas con TDAH o limitaciones.
+# Petición para crear una relación guía-usuario
+# - Propósito: Asigna un guía a un usuario.
+# - Endpoint: POST /api/guide-user
+# - Autenticación: Requiere token JWT de un guía.
+# - Ejemplo: Ana (guide_id=7) asigna a Sofía (user_id=5).
 POST {{host}}/api/guide-user
+Authorization: Bearer {{token}}
 Content-Type: application/json
+{
+  "guideId": 16,
+  "userId": 17
+}
+
+# Petición para obtener todas las relaciones guía-usuario asociadas al usuario autenticado
+# - Propósito: Obtener relaciones donde el usuario autenticado es guía o usuario.
+# - Endpoint: GET /api/guide-user
+# - Autenticación: Requiere token JWT.
+# - Relevancia para neurodivergencia: Proporciona una lista clara de guías asignadas, ayudando a usuarios con TDAH a entender su soporte.
+# - Respuesta esperada (200, para user_id=1, María):
+#   {
+#     "message": "Relaciones guía-usuario obtenidas correctamente",
+#     "relations": [
+#       {
+#         "guide_user_id": 1,
+#         "guide": {
+#           "user_id": 6,
+#           "username": "carlos_t",
+#           "first_name": "Carlos",
+#           "last_name": "Torres",
+#           "role": "guide"
+#         },
+#         "user": {
+#           "user_id": 1,
+#           "username": "maria_g",
+#           "first_name": "María",
+#           "last_name": "Gómez",
+#           "role": "user"
+#         },
+#         "created_at": "2025-06-05T00:00:00.000Z"
+#       }
+#     ]
+#   }
+# - Respuesta esperada (200, para guide_id=6, Carlos):
+#   {
+#     "message": "Relaciones guía-usuario obtenidas correctamente",
+#     "relations": [
+#       {
+#         "guide_user_id": 1,
+#         "guide": {
+#           "user_id": 6,
+#           "username": "carlos_t",
+#           "first_name": "Carlos",
+#           "last_name": "Torres",
+#           "role": "guide"
+#         },
+#         "user": {
+#           "user_id": 1,
+#           "username": "maria_g",
+#           "first_name": "María",
+#           "last_name": "Gómez",
+#           "role": "user"
+#         },
+#         "created_at": "2025-06-05T00:00:00.000Z"
+#       },
+#       {
+#         "guide_user_id": 2,
+#         "guide": {
+#           "user_id": 6,
+#           "username": "carlos_t",
+#           "first_name": "Carlos",
+#           "last_name": "Torres",
+#           "role": "guide"
+#         },
+#         "user": {
+#           "user_id": 2,
+#           "username": "juan_p",
+#           "first_name": "Juan",
+#           "last_name": "Pérez",
+#           "role": "user"
+#         },
+#         "created_at": "2025-06-05T00:00:00.000Z"
+#       },
+#       {
+#         "guide_user_id": 3,
+#         "guide": {
+#           "user_id": 6,
+#           "username": "carlos_t",
+#           "first_name": "Carlos",
+#           "last_name": "Torres",
+#           "role": "guide"
+#         },
+#         "user": {
+#           "user_id": 3,
+#           "username": "laura_m",
+#           "first_name": "Laura",
+#           "last_name": "Martínez",
+#           "role": "user"
+#         },
+#         "created_at": "2025-06-05T00:00:00.000Z"
+#       }
+#     ]
+#   }
+# - Errores:
+#   - 401: Token inválido o no proporcionado.
+#   - 500: Error en la base de datos.
+###
+GET {{host}}/api/guide-user
 Authorization: Bearer {{token}}
 
-{
-    "guideId": 25,
-    "userId": 6
-}
+# Petición para obtener los detalles de una relación guía-usuario específica
+# - Propósito: Obtener detalles de una relación por guide_user_id.
+# - Endpoint: GET /api/guide-user/:guideUserId
+# - Autenticación: Requiere token JWT del guía o usuario involucrado.
+# - Relevancia para neurodivergencia: Ayuda a guías a revisar detalles de una relación específica, útil para gestionar usuarios con TEA/TDAH.
+# - Respuesta esperada (200, para guide_user_id=1, user_id=1 o guide_id=6):
+#   {
+#     "message": "Relación guía-usuario obtenida correctamente",
+#     "relation": {
+#       "guide_user_id": 1,
+#       "guide": {
+#         "user_id": 6,
+#         "username": "carlos_t",
+#         "first_name": "Carlos",
+#         "last_name": "Torres",
+#         "role": "guide"
+#       },
+#       "user": {
+#         "user_id": 1,
+#         "username": "maria_g",
+#         "first_name": "María",
+#         "last_name": "Gómez",
+#         "role": "user"
+#       },
+#       "created_at": "2025-06-05T00:00:00.000Z"
+#     }
+#   }
+# - Errores:
+#   - 400: ID inválido (no numérico).
+#   - 401: Token inválido o no proporcionado.
+#   - 403: Relación no encontrada o no autorizada.
+#   - 500: Error en la base de datos.
+###
+GET {{host}}/api/guide-user/2
+Authorization: Bearer {{token}}
+
+# Petición para eliminar una relación guía-usuario específica
+# - Propósito: Eliminar una relación por guide_user_id.
+# - Endpoint: DELETE /api/guide-user/:guideUserId
+# - Autenticación: Requiere token JWT del guía o usuario involucrado.
+# - Relevancia para neurodivergencia: Permite a usuarios con TEA ajustar sus relaciones de soporte, ofreciendo flexibilidad.
+# - Respuesta esperada (200, para guide_user_id=1):
+#   {
+#     "message": "Relación guía-usuario eliminada correctamente",
+#     "guideUserId": 1
+#   }
+# - Errores:
+#   - 400: ID inválido (no numérico).
+#   - 401: Token inválido o no proporcionado.
+#   - 403: Relación no encontrada o no autorizada.
+#   - 500: Error en la base de datos.
+DELETE {{host}}/api/guide-user/1
+Authorization: Bearer {{token}}
+
 
 ##############
 #  PROFILES  #
