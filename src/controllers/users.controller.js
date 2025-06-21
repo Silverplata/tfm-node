@@ -229,8 +229,15 @@ const updateProfile = async (req, res, next) => {
     } else if (remove_image === 'true') {
       image = null;
     }
+    
+    const updateData = { first_name, last_name, num_tel, gender, color_palette };
 
-    const updatedProfile = await User.updateProfile(userId, { first_name, last_name, num_tel, gender, color_palette, image });
+    // Solo actualizar el campo de imagen si se proporciona una imagen o se solicita eliminarla
+    if (req.file || remove_image === 'true') {
+      updateData.image = image;
+    }
+
+    const updatedProfile = await User.updateProfile(userId, updateData);
     res.status(200).json({
       message: 'Perfil actualizado correctamente',
       profile: {
