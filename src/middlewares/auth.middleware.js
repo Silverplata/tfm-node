@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const checkToken = async (req, res, next) => {
+  // Verifica si el token JWT está presente en los headers de la solicitud
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
