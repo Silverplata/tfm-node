@@ -5,7 +5,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA1MTAyNDMsImV4cCI6MTc1MDUyODI0M30.sVbjiyTt1PG6kAEK1nQ5hdq_VmjSa3zBCvmC10kZzWo
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA1MjQ4MDUsImV4cCI6MTc1MDU0MjgwNX0.MwMcpnIVUg13oIMZHHCPULxO4C6VLY9dIo-q5P6vM-g
 
 # Petición en formato curl para registrar un nuevo usuario estándar.
 # - Propósito: Crear una cuenta para un usuario con TDAH que gestionará sus propias rutinas.
@@ -392,4 +392,8 @@ Authorization: Bearer {{token}}
 #   { "email": "maria.gomez@example.com", "password": "<contraseña>" }
 
 GET {{host}}/api/routines
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/routines/1
 Authorization: Bearer {{token}}
