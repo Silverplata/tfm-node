@@ -5,7 +5,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE3LCJyb2xlIjoidXNlciIsImlhdCI6MTc1MDQ1ODE4NSwiZXhwIjoxNzUwNDc2MTg1fQ.GBBqCIm1laFU2tBfAJZ7QUTVJ0dJsSi72XHq74Cer04
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA1MTAyNDMsImV4cCI6MTc1MDUyODI0M30.sVbjiyTt1PG6kAEK1nQ5hdq_VmjSa3zBCvmC10kZzWo
 
 # Petición en formato curl para registrar un nuevo usuario estándar.
 # - Propósito: Crear una cuenta para un usuario con TDAH que gestionará sus propias rutinas.
@@ -320,4 +320,76 @@ Authorization: Bearer {{token}}
 
 ### Eliminar un objetivo
 DELETE {{host}}/api/profile-goals/6
+Authorization: Bearer {{token}}
+
+
+##############
+#  ROUTINES  #
+##############
+
+# Petición para obtener todas las rutinas asociadas al usuario autenticado
+# - Propósito: Obtener las rutinas y sus actividades asociadas para un usuario (user_id) o guía (guide_id).
+# - Autenticación: Requiere un token JWT válido en el encabezado Authorization.
+# - Endpoint: GET /api/routines
+# - Relevancia para neurodivergencia: Proporciona una vista estructurada y ordenada de las rutinas, esencial para usuarios con TDAH que necesitan organización clara.
+# - Respuesta esperada (200, para user_id=1):
+#   {
+#     "message": "Rutinas obtenidas correctamente",
+#     "routines": [
+#       {
+#         "routine_id": 1,
+#         "user_id": 1,
+#         "name": "Rutina matutina",
+#         "description": "Yoga y planificación diaria",
+#         "is_template": false,
+#         "created_at": "2025-06-05T00:00:00.000Z",
+#         "updated_at": "2025-06-05T00:00:00.000Z",
+#         "start_time": "2025-06-05T08:00:00.000Z",
+#         "end_time": "2025-06-05T09:00:00.000Z",
+#         "daily_routine": "Daily",
+#         "activities": [
+#           {
+#             "activity_id": 1,
+#             "activity_name": "Yoga matutino",
+#             "description": "15 minutos de yoga suave",
+#             "day_of_week": "Monday",
+#             "start_time": "08:00:00",
+#             "end_time": "08:15:00",
+#             "location": "Sala",
+#             "datetime_start": "2025-06-05T08:00:00.000Z",
+#             "datetime_end": "2025-06-05T08:15:00.000Z",
+#             "icon": null,
+#             "category": {
+#               "name": "Yoga",
+#               "color": "#32CD32"
+#             }
+#           },
+#           {
+#             "activity_id": 2,
+#             "activity_name": "Planificar día",
+#             "description": "Escribir 3 tareas",
+#             "day_of_week": "Monday",
+#             "start_time": "08:20:00",
+#             "end_time": "08:30:00",
+#             "location": "Escritorio",
+#             "datetime_start": "2025-06-05T08:20:00.000Z",
+#             "datetime_end": "2025-06-05T08:30:00.000Z",
+#             "icon": null,
+#             "category": {
+#               "name": "Relajación",
+#               "color": "#4682B4"
+#             }
+#           }
+#         ]
+#       }
+#     ]
+#   }
+# - Errores:
+#   - 401: Token inválido o no proporcionado.
+#   - 500: Error en la base de datos (MySQL).
+# - Nota: El token debe corresponder a un usuario autenticado (obtenido vía POST /api/auth/login).
+#   Por ejemplo, para user_id=1 (maria_g), usa el token generado al iniciar sesión con:
+#   { "email": "maria.gomez@example.com", "password": "<contraseña>" }
+
+GET {{host}}/api/routines
 Authorization: Bearer {{token}}
