@@ -3,7 +3,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA3MTQwNDAsImV4cCI6MTc1MDczMjA0MH0.CM5rQtAo4MqRi3x-WzYgQJrks0rQxQzV3uWJj76X5q8
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA3MTc0NjgsImV4cCI6MTc1MDczNTQ2OH0.Y9qwF8lKnyEtRK_T-q7Rr8KDWrHLt01mIQFOSUiW6gg
 
 
 ##################################################################
@@ -110,6 +110,38 @@ Content-Type: application/json
   "description": "Hobbies y actividades recreativas",
 }
 
+### crear rutina
+POST {{host}}/api/routines
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "targetUserId": 1,
+  "name": "Rutina vespertina",
+  "description": "Actividades para la tarde",
+  "is_template": false,
+  "start_time": "2025-06-05T16:00:00Z",
+  "end_time": "2025-06-05T17:00:00Z",
+  "daily_routine": "Daily"
+}
+
+
+### crear actividad en rutina
+POST {{host}}/api/activities
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "routine_id": 7,
+  "title": "Estudiar matemáticas",
+  "description": "Resolver ejercicios de álgebra",
+  "day_of_week": "Monday",
+  "start_time": "16:30:00",
+  "end_time": "17:00:00",
+  "location": "Sala de estudio",
+  "icon": "book",
+  "category_id": 1
+}
+
 ##################################################################
 ##############                PUT                   ##############
 ##################################################################
@@ -158,6 +190,34 @@ Authorization: Bearer {{token}}
   "deadline": "2025-07-20"
 }
 
+### actualizar una rutina
+PUT {{host}}/api/routines/7
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "targetUserId": 1,
+  "name": "Rutina vespertina actualizada",
+  "description": "Actividades para la tarde",
+  "is_template": false,
+  "start_time": "2025-06-05T16:00:00Z",
+  "end_time": "2025-06-05T17:00:00Z",
+  "daily_routine": "Daily"
+}
+
+
+### actualizar una actividad
+PUT {{host}}/api/activities/14
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "routine_id": 7,
+  "title": "Estudiar matemáticas avanzadas",
+  "description": "Resolver ejercicios de cálculo",
+  "start_time": "16:45:00",
+  "end_time": "17:15:00",
+  "day_of_week": "Tuesday"
+}
 
 ##################################################################
 ##############                GET                   ##############
@@ -172,7 +232,7 @@ GET {{host}}/api/guide-user
 Authorization: Bearer {{token}}
 
 ### Obtener un guía por ID
-GET {{host}}/api/guide-user/6
+GET {{host}}/api/guide-user/7
 Authorization: Bearer {{token}}
 
 ### Listar intereses
@@ -191,7 +251,21 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/categories
 Authorization: Bearer {{token}}
 
+### Obtener routinas
+GET {{host}}/api/routines
+Authorization: Bearer {{token}}
 
+### Obtener routinas por id de usuario
+GET {{host}}/api/routines/6
+Authorization: Bearer {{token}}
+
+### Obtener Todas las Actividades
+GET {{host}}/api/activities
+Authorization: Bearer {{token}}
+
+### Obtener actividad por ID
+GET {{host}}/api/activities/14
+Authorization: Bearer {{token}}
 
 
 ##################################################################
@@ -204,6 +278,14 @@ Authorization: Bearer {{token}}
 
 ### Eliminar un objetivo
 DELETE {{host}}/api/profile-goals/6
+Authorization: Bearer {{token}}
+
+### Eliminar una rutina
+DELETE {{host}}/api/routines/6
+Authorization: Bearer {{token}}
+
+### Eliminar una actividad
+DELETE {{host}}/api/activities/14
 Authorization: Bearer {{token}}
 
 

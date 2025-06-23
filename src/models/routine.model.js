@@ -7,7 +7,6 @@ const Routine = {
       let values;
 
       if (role === 'guide') {
-        // Para guías, obtener rutinas de los usuarios asignados (a través de guide_user)
         query = `
           SELECT 
             r.routine_id, r.user_id, r.name, r.description, r.is_template, 
@@ -25,7 +24,6 @@ const Routine = {
         `;
         values = [userId];
       } else {
-        // Para usuarios, obtener sus propias rutinas
         query = `
           SELECT 
             r.routine_id, r.user_id, r.name, r.description, r.is_template, 
@@ -45,7 +43,6 @@ const Routine = {
 
       const [rows] = await pool.query(query, values);
 
-      // Agrupar actividades por rutina
       const routines = [];
       const routineMap = new Map();
 
@@ -100,7 +97,6 @@ const Routine = {
       let values;
 
       if (role === 'guide') {
-        // Para guías, verificar que la rutina pertenece a un usuario asignado
         query = `
           SELECT 
             r.routine_id, r.user_id, r.name, r.description, r.is_template, 
@@ -118,7 +114,6 @@ const Routine = {
         `;
         values = [routineId, userId];
       } else {
-        // Para usuarios, obtener su propia rutina
         query = `
           SELECT 
             r.routine_id, r.user_id, r.name, r.description, r.is_template, 
@@ -142,7 +137,6 @@ const Routine = {
         throw new Error('Rutina no encontrada o no autorizada');
       }
 
-      // Estructurar la rutina
       const routine = {
         routine_id: rows[0].routine_id,
         user_id: rows[0].user_id,
@@ -157,7 +151,6 @@ const Routine = {
         activities: [],
       };
 
-      // Añadir actividades
       rows.forEach(row => {
         if (row.activity_id) {
           routine.activities.push({
@@ -182,6 +175,153 @@ const Routine = {
       return routine;
     } catch (error) {
       throw new Error(`Error al obtener la rutina: ${error.message}`);
+    }
+  },
+
+  async createRoutine({ userId, targetUserId, name, description, is_template, start_time, end_time, daily_routine }) {
+    try {
+      // Validar campos obligatorios
+      if (!name) {
+        throw new Error('El nombre de la rutina es obligatorio');
+      }
+      if (!targetUserId) {
+        throw new Error('El ID del usuario objetivo es obligatorio');
+      }
+      if (daily_routine && !['Daily', 'Weekly', 'Monthly'].includes(daily_routine)) {
+        throw new Error('El tipo de rutina debe ser Daily, Weekly o Monthly');
+      }
+
+      // Verificar que el usuario objetivo existe
+      const [userRows] = await pool.query('SELECT user_id FROM users WHERE user_id = ?', [targetUserId]);
+      if (!userRows[0]) {
+        throw new Error('Usuario objetivo no encontrado');
+      }
+
+      const [result] = await pool.query(
+        'INSERT INTO routines (user_id, name, description, is_template, start_time, end_time, daily_routine) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [targetUserId, name, description || null, is_template ? 1 : 0, start_time || null, end_time || null, daily_routine || 'Daily']
+      );
+
+      return {
+        routine_id: result.insertId,
+        user_id: targetUserId,
+        name,
+        description: description || null,
+        is_template: Boolean(is_template),
+        created_at: new Date(),
+        updated_at: new Date(),
+        start_time: start_time || null,
+        end_time: end_time || null,
+        daily_routine: daily_routine || 'Daily',
+        activities: [],
+      };
+    } catch (error) {
+      throw new Error(`No se pudo crear la rutina: ${error.message}`);
+    }
+  },
+
+  async updateRoutine(routineId, userId, role, { name, description, is_template, start_time, end_time, daily_routine }) {
+    try {
+      // Validar campos
+      if (!name) {
+        throw new Error('El nombre de la rutina es obligatorio');
+      }
+      if (daily_routine && !['Daily', 'Weekly', 'Monthly'].includes(daily_routine)) {
+        throw new Error('El tipo de rutina debe ser Daily, Weekly o Monthly');
+      }
+
+      // Verificar autorización
+      let query;
+      let values;
+      if (role === 'guide') {
+        query = `
+          SELECT r.routine_id
+          FROM routines r
+          JOIN guide_user gu ON r.user_id = gu.user_id
+          WHERE r.routine_id = ? AND gu.guide_id = ?
+        `;
+        values = [routineId, userId];
+      } else {
+        query = 'SELECT routine_id FROM routines WHERE routine_id = ? AND user_id = ?';
+        values = [routineId, userId];
+      }
+      const [authRows] = await pool.query(query, values);
+      if (!authRows[0]) {
+        throw new Error('Rutina no encontrada o no autorizada');
+      }
+
+      const updateFields = [];
+      const updateValues = [];
+      if (name) {
+        updateFields.push('name = ?');
+        updateValues.push(name);
+      }
+      if (description !== undefined) {
+        updateFields.push('description = ?');
+        updateValues.push(description || null);
+      }
+      if (is_template !== undefined) {
+        updateFields.push('is_template = ?');
+        updateValues.push(is_template ? 1 : 0);
+      }
+      if (start_time !== undefined) {
+        updateFields.push('start_time = ?');
+        updateValues.push(start_time || null);
+      }
+      if (end_time !== undefined) {
+        updateFields.push('end_time = ?');
+        updateValues.push(end_time || null);
+      }
+      if (daily_routine) {
+        updateFields.push('daily_routine = ?');
+        updateValues.push(daily_routine);
+      }
+      updateFields.push('updated_at = ?');
+      updateValues.push(new Date());
+      updateValues.push(routineId);
+
+      if (updateFields.length === 1) {
+        throw new Error('No se proporcionaron campos para actualizar');
+      }
+
+      await pool.query(
+        `UPDATE routines SET ${updateFields.join(', ')} WHERE routine_id = ?`,
+        updateValues
+      );
+
+      return await this.getRoutineById(routineId, userId, role);
+    } catch (error) {
+      throw new Error(`No se pudo actualizar la rutina: ${error.message}`);
+    }
+  },
+
+  async deleteRoutine(routineId, userId, role) {
+    try {
+      // Verificar autorización
+      let query;
+      let values;
+      if (role === 'guide') {
+        query = `
+          SELECT r.routine_id
+          FROM routines r
+          JOIN guide_user gu ON r.user_id = gu.user_id
+          WHERE r.routine_id = ? AND gu.guide_id = ?
+        `;
+        values = [routineId, userId];
+      } else {
+        query = 'SELECT routine_id FROM routines WHERE routine_id = ? AND user_id = ?';
+        values = [routineId, userId];
+      }
+      const [authRows] = await pool.query(query, values);
+      if (!authRows[0]) {
+        throw new Error('Rutina no encontrada o no autorizada');
+      }
+
+      // Eliminar rutina (las actividades asociadas se eliminan por ON DELETE CASCADE)
+      await pool.query('DELETE FROM routines WHERE routine_id = ?', [routineId]);
+      return { routine_id: routineId };
+    } catch (error) {
+      throw new Error(`No se pudo eliminar la rutina: ${error.message}`);
     }
   },
 };
