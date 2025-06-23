@@ -3,7 +3,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA1NDU0ODgsImV4cCI6MTc1MDU2MzQ4OH0.mKH9jqMuErTwk2ccMxGTuqWfbGYHSWY5SsU_oCViHyw
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA3MTQwNDAsImV4cCI6MTc1MDczMjA0MH0.CM5rQtAo4MqRi3x-WzYgQJrks0rQxQzV3uWJj76X5q8
 
 
 ##################################################################
@@ -61,7 +61,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {    
-    "email": "carla@gmail.com",
+    "email": "sandra@gmail.com",
     "password": "a1b2c3d6"
 } 
 
@@ -99,6 +99,16 @@ Authorization: Bearer {{token}}
   "deadline": "2025-08-01"
 }
 
+### Crear categoría
+POST {{host}}/api/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "name": "hobbies",
+  "color": "#32CD32",
+  "icon": "hoobyes-icon.png",
+  "description": "Hobbies y actividades recreativas",
+}
 
 ##################################################################
 ##############                PUT                   ##############
@@ -176,6 +186,12 @@ Authorization: Bearer {{token}}
 ### Obtener todos los objetivos
 GET {{host}}/api/profile-goals
 Authorization: Bearer {{token}}
+
+### Obtener categorías
+GET {{host}}/api/categories
+Authorization: Bearer {{token}}
+
+
 
 
 ##################################################################
