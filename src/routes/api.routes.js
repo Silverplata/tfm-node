@@ -8,8 +8,8 @@ router.use('/guide-user', require('./api/guideUser.routes'));
 router.use('/users', require('./api/users.routes'));
 router.use('/profile-goals', require('./api/profileGoals.routes'));
 router.use('/routines', require('./api/routines.routes'));
-// Otras rutas (por ejemplo, users, routines, etc.)
+
 router.use('/activities', require('./api/activities.routes'));
-// router.use('/users', require('./api/users.route'));
+router.use('/categories', require('./api/categories.routes'));
 
 module.exports = router;
