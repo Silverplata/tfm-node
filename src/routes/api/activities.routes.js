@@ -1,13 +1,11 @@
+const router = require('express').Router();
+const { checkToken } = require('../../middlewares/auth.middleware');
 const { getAll, getById, create, edit, remove } = require('../../controllers/activities.controller');
 
-const router = require('express').Router();
-
-// Define your routes here
-router.get('/', getAll);
-router.get('/:activityId', getById);
-
-router.post('/', create)
-router.put('/:activityId', edit);
-router.delete('/:activityId', remove);
+router.get('/', checkToken, getAll);
+router.get('/:activityId', checkToken, getById);
+router.post('/', checkToken, create);
+router.put('/:activityId', checkToken, edit);
+router.delete('/:activityId', checkToken, remove);
 
 module.exports = router;
