@@ -1,5 +1,15 @@
 const pool = require('../config/db');
 
+// Función auxiliar para formatear fechas a MySQL
+const formatDate = (dateStr) => {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) {
+    throw new Error(`Formato de fecha inválido: ${dateStr}`);
+  }
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+};
+
 const selectAll = async (userId, role) => {
   try {
     let query;
@@ -111,9 +121,13 @@ const insert = async ({ routine_id, category_id, title, description, day_of_week
       }
     }
 
+    // Formatear fechas
+    const formattedDatetimeStart = formatDate(datetime_start);
+    const formattedDatetimeEnd = formatDate(datetime_end);
+
     const [result] = await pool.query(
       'INSERT INTO activities (routine_id, category_id, title, description, day_of_week, start_time, end_time, location, datetime_start, datetime_end, created_at, updated_at, icon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [routine_id, category_id || null, title, description || null, day_of_week || null, start_time || null, end_time || null, location || null, datetime_start || null, datetime_end || null, new Date(), new Date(), icon || null]
+      [routine_id, category_id || null, title, description || null, day_of_week || null, start_time || null, end_time || null, location || null, formattedDatetimeStart, formattedDatetimeEnd, new Date(), new Date(), icon || null]
     );
     return result;
   } catch (error) {
@@ -157,9 +171,13 @@ const updateById = async (activityId, { routine_id, category_id, title, descript
       }
     }
 
+    // Formatear fechas
+    const formattedDatetimeStart = formatDate(datetime_start);
+    const formattedDatetimeEnd = formatDate(datetime_end);
+
     const [result] = await pool.query(
       'UPDATE activities SET routine_id = ?, category_id = ?, title = ?, description = ?, day_of_week = ?, start_time = ?, end_time = ?, location = ?, datetime_start = ?, datetime_end = ?, updated_at = ?, icon = ? WHERE activity_id = ?',
-      [routine_id, category_id || null, title, description || null, day_of_week || null, start_time || null, end_time || null, location || null, datetime_start || null, datetime_end || null, new Date(), icon || null, activityId]
+      [routine_id, category_id || null, title, description || null, day_of_week || null, start_time || null, end_time || null, location || null, formattedDatetimeStart, formattedDatetimeEnd, new Date(), icon || null, activityId]
     );
     return result;
   } catch (error) {

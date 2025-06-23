@@ -3,7 +3,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA3MTc0NjgsImV4cCI6MTc1MDczNTQ2OH0.Y9qwF8lKnyEtRK_T-q7Rr8KDWrHLt01mIQFOSUiW6gg
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA3MjIzMzQsImV4cCI6MTc1MDc0MDMzNH0.rMF5ZsE25HvomqKW6WO88ms61hTzNAOBjCH2WLtGco4
 
 
 ##################################################################
@@ -132,14 +132,16 @@ Content-Type: application/json
 
 {
   "routine_id": 7,
-  "title": "Estudiar matemáticas",
-  "description": "Resolver ejercicios de álgebra",
-  "day_of_week": "Monday",
+  "title": "Estudio fotografía",
+  "description": "Resolver ejercicios de fotografía",
+  "day_of_week": "tuesday",
   "start_time": "16:30:00",
   "end_time": "17:00:00",
-  "location": "Sala de estudio",
-  "icon": "book",
-  "category_id": 1
+  "location": "Sala de fotografía",
+  "datetime_start": "2025-06-06T16:30:00Z",
+  "datetime_end": "2025-06-06T17:00:00Z",
+  "icon": "photo.png",
+  "category_id": 3
 }
 
 ##################################################################
@@ -206,7 +208,7 @@ Content-Type: application/json
 
 
 ### actualizar una actividad
-PUT {{host}}/api/activities/14
+PUT {{host}}/api/activities/15
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -216,7 +218,12 @@ Content-Type: application/json
   "description": "Resolver ejercicios de cálculo",
   "start_time": "16:45:00",
   "end_time": "17:15:00",
-  "day_of_week": "Tuesday"
+  "location": "Sala de estudio",
+  "datetime_start": "2025-06-06T16:30:00Z",
+  "datetime_end": "2025-06-06T17:00:00Z",
+  "icon": "book.png",
+  "day_of_week": "Tuesday",
+  "category_id": 7
 }
 
 ##################################################################
@@ -264,7 +271,7 @@ GET {{host}}/api/activities
 Authorization: Bearer {{token}}
 
 ### Obtener actividad por ID
-GET {{host}}/api/activities/14
+GET {{host}}/api/activities/18
 Authorization: Bearer {{token}}
 
 
@@ -285,7 +292,7 @@ DELETE {{host}}/api/routines/6
 Authorization: Bearer {{token}}
 
 ### Eliminar una actividad
-DELETE {{host}}/api/activities/14
+DELETE {{host}}/api/activities/16
 Authorization: Bearer {{token}}
 
 
