@@ -2,7 +2,7 @@
 
 # 📘 API – Planificador de Rutinas Semanales
 
-API RESTful para la autenticación de usuarios, gestión de perfiles, intereses, objetivos y relaciones entre guías y usuarios. Diseñada para apoyar a personas con TDAH, TEA u otras neurodivergencias, ofreciendo herramientas para la organización, personalización y seguimiento de metas.
+API RESTful para la autenticación de usuarios, gestión de perfiles, intereses, objetivos, rutinas y relaciones entre guías y usuarios. Diseñada para apoyar a personas con TDAH, TEA u otras neurodivergencias, ofreciendo herramientas claras y flexibles para la organización, personalización y seguimiento de metas.
 
 **Versión:** 1.0.0  
 **Base URL (desarrollo):** `http://localhost:3000/api`  
@@ -10,9 +10,50 @@ API RESTful para la autenticación de usuarios, gestión de perfiles, intereses,
 
 ---
 
+## 🚀 Instalación y Configuración
+
+1. **Clonar el repositorio**:
+   ```bash
+   git clone https://github.com/Silverplata/tfm-node.git
+   cd tfm-node
+   ```
+
+2. **Instalar dependencias**:
+   ```bash
+   npm install
+   ```
+
+3. **Configurar variables de entorno**:
+   - Crea un archivo `.env` en la raíz del proyecto.
+   - Ejemplo:
+     ```env
+     PORT=3000
+     JWT_SECRET=tu_secreto_jwt
+     DB_HOST=localhost
+     DB_USER=tu_usuario
+     DB_PASSWORD=tu_contraseña
+     DB_NAME=planificador_db
+     ```
+
+4. **Configurar la base de datos**:
+   - Usa los scripts SQL proporcionados para crear las tablas `users`, `profiles`, `profile_interests`, `profile_goals`, `routines`, `activities`, `categories`, y `guide_user`.
+   - Ejecuta:
+     ```sql
+     CREATE DATABASE planificador_db;
+     ```
+
+5. **Iniciar el servidor**:
+   ```bash
+   npm start
+   # O para desarrollo con nodemon:
+   npm run dev
+   ```
+
+---
+
 ## 🔐 Autenticación
 
-### `POST /auth/register`
+### `POST /api/auth/register`
 
 Registra un nuevo usuario o guía.
 
@@ -20,42 +61,42 @@ Registra un nuevo usuario o guía.
 
 ```json
 {
-  "username": "johndoe",
-  "email": "john@example.com",
+  "username": "carlos_t",
+  "email": "carlos.torres@example.com",
   "password": "securepassword123",
-  "first_name": "John",
-  "last_name": "Doe",
-  "age": 25,
+  "first_name": "Carlos",
+  "last_name": "Torres",
+  "age": 30,
   "num_tel": "123456789",
   "gender": "Hombre",
-  "image": "profile.jpg",
-  "role": "user"
+  "image": "carlos.jpg",
+  "role": "guide"
 }
 ```
 
 #### Responses
 
 - `201 Created`: Usuario registrado correctamente.
-
   ```json
   {
     "message": "Usuario registrado satisfactoriamente",
     "user": {
-      "userId": 1,
-      "username": "johndoe",
-      "email": "john@example.com",
-      "role": "user"
+      "userId": 6,
+      "username": "carlos_t",
+      "email": "carlos.torres@example.com",
+      "role": "guide",
+      "image": "carlos.jpg"
     }
   }
   ```
 
-- `400 Bad Request`: Campos faltantes o inválidos (ej., número de teléfono no válido, género incorrecto).
+- `400 Bad Request`: Campos faltantes o inválidos (ej., número de teléfono no válido, edad menor a 14).
 - `409 Conflict`: El correo ya está registrado.
-- `500 Internal Server Error`: Error al registrar el usuario.
+- `500 Internal Server Error`: Error al registrar.
 
 ---
 
-### `POST /auth/login`
+### `POST /api/auth/login`
 
 Inicia sesión y devuelve un token JWT.
 
@@ -63,23 +104,22 @@ Inicia sesión y devuelve un token JWT.
 
 ```json
 {
-  "email": "john@example.com",
+  "email": "carlos.torres@example.com",
   "password": "securepassword123"
 }
 ```
 
 #### Responses
 
-- `200 OK`: Devuelve token JWT y datos del usuario.
-
+- `200 OK`: Login exitoso.
   ```json
   {
     "message": "Login satisfactorio",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
-      "userId": 1,
-      "email": "john@example.com",
-      "role": "user"
+      "userId": 6,
+      "email": "carlos.torres@example.com",
+      "role": "guide"
     }
   }
   ```
@@ -94,29 +134,28 @@ Inicia sesión y devuelve un token JWT.
 
 > Requiere autenticación con JWT en el header `Authorization: Bearer <token>`
 
-### `GET /users/profile`
+### `GET /api/users/profile`
 
 Obtiene los datos del perfil del usuario autenticado.
 
 #### Responses
 
 - `200 OK`: Perfil obtenido correctamente.
-
   ```json
   {
     "message": "Perfil obtenido correctamente",
     "profile": {
-      "userId": 1,
-      "username": "johndoe",
-      "email": "john@example.com",
-      "firstName": "John",
-      "lastName": "Doe",
-      "age": 25,
+      "userId": 6,
+      "username": "carlos_t",
+      "email": "carlos.torres@example.com",
+      "firstName": "Carlos",
+      "lastName": "Torres",
+      "age": 30,
       "numTel": "123456789",
       "gender": "Hombre",
-      "image": "profile.jpg",
-      "availability": null,
-      "role": "user",
+      "image": "carlos.jpg",
+      "availability": "Lunes a Viernes, 10:00-14:00",
+      "role": "guide",
       "colorPalette": {
         "primary": "#4682B4",
         "secondary": "#708090",
@@ -133,7 +172,7 @@ Obtiene los datos del perfil del usuario autenticado.
 
 ---
 
-### `PUT /users/profile`
+### `PUT /api/users/profile`
 
 Actualiza los datos del perfil del usuario autenticado.
 
@@ -141,35 +180,35 @@ Actualiza los datos del perfil del usuario autenticado.
 
 ```json
 {
-  "first_name": "Juan",
-  "num_tel": "611223344",
+  "first_name": "Carlos Alberto",
+  "num_tel": "987654321",
   "gender": "Hombre",
   "color_palette": {
     "primary": "#FF6F61",
     "secondary": "#4682B4"
-  }
+  },
+  "remove_image": false
 }
 ```
 
 #### Responses
 
 - `200 OK`: Perfil actualizado correctamente.
-
   ```json
   {
     "message": "Perfil actualizado correctamente",
     "profile": {
-      "userId": 1,
-      "username": "johndoe",
-      "email": "john@example.com",
-      "firstName": "Juan",
-      "lastName": "Doe",
-      "age": 25,
-      "numTel": "611223344",
+      "userId": 6,
+      "username": "carlos_t",
+      "email": "carlos.torres@example.com",
+      "firstName": "Carlos Alberto",
+      "lastName": "Torres",
+      "age": 30,
+      "numTel": "987654321",
       "gender": "Hombre",
-      "image": "profile.jpg",
-      "availability": null,
-      "role": "user",
+      "image": "carlos.jpg",
+      "availability": "Lunes a Viernes, 10:00-14:00",
+      "role": "guide",
       "colorPalette": {
         "primary": "#FF6F61",
         "secondary": "#4682B4"
@@ -178,27 +217,26 @@ Actualiza los datos del perfil del usuario autenticado.
   }
   ```
 
-- `400 Bad Request`: Campos inválidos (ej., número de teléfono no tiene 9 dígitos).
+- `400 Bad Request`: Campos inválidos (ej., número de teléfono no tiene 9 dígitos, paleta de colores no válida).
 - `401 Unauthorized`: Token faltante o inválido.
 - `500 Internal Server Error`: Error del servidor.
 
 ---
 
-### `GET /users/interests`
+### `GET /api/users/interests`
 
 Obtiene los intereses del usuario autenticado.
 
 #### Responses
 
 - `200 OK`: Intereses obtenidos correctamente.
-
   ```json
   {
     "message": "Intereses obtenidos correctamente",
     "interests": [
       {
         "interest_id": 1,
-        "interest_name": "Danza",
+        "interest_name": "Coaching",
         "priority": "high",
         "created_at": "2025-06-16T12:00:00.000Z"
       }
@@ -211,7 +249,7 @@ Obtiene los intereses del usuario autenticado.
 
 ---
 
-### `POST /users/interests`
+### `POST /api/users/interests`
 
 Añade un nuevo interés al usuario autenticado.
 
@@ -219,7 +257,7 @@ Añade un nuevo interés al usuario autenticado.
 
 ```json
 {
-  "interest_name": "Yoga",
+  "interest_name": "Mindfulness",
   "priority": "medium"
 }
 ```
@@ -227,14 +265,13 @@ Añade un nuevo interés al usuario autenticado.
 #### Responses
 
 - `201 Created`: Interés añadido correctamente.
-
   ```json
   {
     "message": "Interés añadido correctamente",
     "interest": {
       "interest_id": 2,
-      "profile_id": 1,
-      "interest_name": "Yoga",
+      "profile_id": 6,
+      "interest_name": "Mindfulness",
       "priority": "medium"
     }
   }
@@ -247,7 +284,7 @@ Añade un nuevo interés al usuario autenticado.
 
 ---
 
-### `PUT /users/availability`
+### `PUT /api/users/availability`
 
 Actualiza la disponibilidad del guía autenticado.
 
@@ -262,12 +299,11 @@ Actualiza la disponibilidad del guía autenticado.
 #### Responses
 
 - `200 OK`: Disponibilidad actualizada correctamente.
-
   ```json
   {
     "message": "Disponibilidad actualizada correctamente",
     "availability": {
-      "userId": 2,
+      "userId": 6,
       "availability": "Lunes a Viernes, 10:00-14:00"
     }
   }
@@ -284,14 +320,13 @@ Actualiza la disponibilidad del guía autenticado.
 
 > Requiere autenticación con JWT en el header `Authorization: Bearer <token>`
 
-### `GET /profile-goals`
+### `GET /api/profile-goals`
 
 Obtiene todos los objetivos del usuario autenticado.
 
 #### Responses
 
 - `200 OK`: Objetivos obtenidos correctamente.
-
   ```json
   {
     "message": "Objetivos obtenidos correctamente",
@@ -318,7 +353,7 @@ Obtiene todos los objetivos del usuario autenticado.
 
 ---
 
-### `GET /profile-goals/:id`
+### `GET /api/profile-goals/:id`
 
 Obtiene un objetivo específico por ID.
 
@@ -331,7 +366,6 @@ GET /api/profile-goals/1
 #### Responses
 
 - `200 OK`: Objetivo obtenido correctamente.
-
   ```json
   {
     "message": "Objetivo obtenido correctamente",
@@ -357,7 +391,7 @@ GET /api/profile-goals/1
 
 ---
 
-### `POST /profile-goals`
+### `POST /api/profile-goals`
 
 Crea un nuevo objetivo para el usuario autenticado.
 
@@ -378,7 +412,6 @@ Crea un nuevo objetivo para el usuario autenticado.
 #### Responses
 
 - `201 Created`: Objetivo creado correctamente.
-
   ```json
   {
     "message": "Objetivo creado correctamente",
@@ -404,7 +437,7 @@ Crea un nuevo objetivo para el usuario autenticado.
 
 ---
 
-### `PUT /profile-goals/:id`
+### `PUT /api/profile-goals/:id`
 
 Actualiza un objetivo existente.
 
@@ -427,7 +460,6 @@ PUT /api/profile-goals/1
 #### Responses
 
 - `200 OK`: Objetivo actualizado correctamente.
-
   ```json
   {
     "message": "Objetivo actualizado correctamente",
@@ -454,7 +486,7 @@ PUT /api/profile-goals/1
 
 ---
 
-### `DELETE /profile-goals/:id`
+### `DELETE /api/profile-goals/:id`
 
 Elimina un objetivo existente.
 
@@ -467,7 +499,6 @@ DELETE /api/profile-goals/1
 #### Responses
 
 - `200 OK`: Objetivo eliminado correctamente.
-
   ```json
   {
     "message": "Objetivo eliminado correctamente"
@@ -480,11 +511,120 @@ DELETE /api/profile-goals/1
 
 ---
 
+## 📅 Gestión de Rutinas
+
+> Requiere autenticación con JWT en el header `Authorization: Bearer <token>`
+
+### `GET /api/routines`
+
+Obtiene todas las rutinas del usuario autenticado (o de sus usuarios asignados si es guía).
+
+#### Responses
+
+- `200 OK`: Rutinas obtenidas correctamente.
+  ```json
+  {
+    "message": "Rutinas obtenidas correctamente",
+    "routines": [
+      {
+        "routine_id": 1,
+        "user_id": 1,
+        "name": "Rutina matutina",
+        "description": "Actividades para empezar el día",
+        "is_template": false,
+        "created_at": "2025-06-16T12:00:00.000Z",
+        "updated_at": "2025-06-16T12:00:00.000Z",
+        "start_time": "08:00:00",
+        "end_time": "12:00:00",
+        "daily_routine": true,
+        "activities": [
+          {
+            "activity_id": 1,
+            "activity_name": "Desayuno",
+            "description": "Tomar un desayuno equilibrado",
+            "day_of_week": "Lunes",
+            "start_time": "08:00:00",
+            "end_time": "08:30:00",
+            "location": "Cocina",
+            "datetime_start": "2025-06-16T08:00:00.000Z",
+            "datetime_end": "2025-06-16T08:30:00.000Z",
+            "icon": "spoon",
+            "category": {
+              "name": "Alimentación",
+              "color": "#FF6347"
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `GET /api/routines/:id`
+
+Obtiene una rutina específica por ID.
+
+#### Request
+
+```
+GET /api/routines/1
+```
+
+#### Responses
+
+- `200 OK`: Rutina obtenida correctamente.
+  ```json
+  {
+    "message": "Rutina obtenida correctamente",
+    "routine": {
+      "routine_id": 1,
+      "user_id": 1,
+      "name": "Rutina matutina",
+      "description": "Actividades para empezar el día",
+      "is_template": false,
+      "created_at": "2025-06-16T12:00:00.000Z",
+      "updated_at": "2025-06-16T12:00:00.000Z",
+      "start_time": "08:00:00",
+      "end_time": "12:00:00",
+      "daily_routine": true,
+      "activities": [
+        {
+          "activity_id": 1,
+          "activity_name": "Desayuno",
+          "description": "Tomar un desayuno equilibrado",
+          "day_of_week": "Lunes",
+          "start_time": "08:00:00",
+          "end_time": "08:30:00",
+          "location": "Cocina",
+          "datetime_start": "2025-06-16T08:00:00.000Z",
+          "datetime_end": "2025-06-16T08:30:00.000Z",
+          "icon": "spoon",
+          "category": {
+            "name": "Alimentación",
+            "color": "#FF6347"
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `404 Not Found`: Rutina no encontrada o no autorizada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
 ## 👥 Relación Guía–Usuario
 
 > Requiere autenticación con JWT en el header `Authorization: Bearer <token>`
 
-### `POST /guide-user`
+### `POST /api/guide-user`
 
 Permite a un guía vincularse con un usuario.
 
@@ -492,30 +632,139 @@ Permite a un guía vincularse con un usuario.
 
 ```json
 {
-  "guideId": 5,
-  "userId": 12
+  "guideId": 6,
+  "userId": 5
 }
 ```
 
 #### Responses
 
 - `201 Created`: Relación guía-usuario creada.
-
   ```json
   {
     "message": "Relación guía-usuario creada correctamente",
     "relation": {
-      "guideUserId": 1,
-      "guideId": 5,
-      "userId": 12
+      "guideUserId": 6,
+      "guideId": 6,
+      "userId": 5
     }
   }
   ```
 
-- `400 Bad Request`: Datos faltantes o inválidos.
+- `400 Bad Request`: Faltan `guideId` o `userId`.
 - `401 Unauthorized`: Token faltante o inválido.
-- `403 Forbidden`: Solo los guías pueden realizar esta acción.
-- `409 Conflict`: Relación ya existente.
+- `403 Forbidden`: Solo guías pueden crear relaciones, o `guideId` no coincide con el usuario autenticado.
+- `404 Not Found`: Guía o usuario no encontrado.
+- `409 Conflict`: Relación ya existe.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `GET /api/guide-user`
+
+Obtiene todas las relaciones guía-usuario asociadas al usuario autenticado (como guía o usuario).
+
+#### Responses
+
+- `200 OK`: Relaciones obtenidas correctamente.
+  ```json
+  {
+    "message": "Relaciones guía-usuario obtenidas correctamente",
+    "relations": [
+      {
+        "guide_user_id": 1,
+        "guide": {
+          "user_id": 6,
+          "username": "carlos_t",
+          "first_name": "Carlos",
+          "last_name": "Torres",
+          "role": "guide"
+        },
+        "user": {
+          "user_id": 1,
+          "username": "maria_g",
+          "first_name": "María",
+          "last_name": "Gómez",
+          "role": "user"
+        },
+        "created_at": "2025-06-05T00:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `GET /api/guide-user/:guideUserId`
+
+Obtiene los detalles de una relación guía-usuario específica por su ID.
+
+#### Request
+
+```
+GET /api/guide-user/1
+```
+
+#### Responses
+
+- `200 OK`: Relación obtenida correctamente.
+  ```json
+  {
+    "message": "Relación guía-usuario obtenida correctamente",
+    "relation": {
+      "guide_user_id": 1,
+      "guide": {
+        "user_id": 6,
+        "username": "carlos_t",
+        "first_name": "Carlos",
+        "last_name": "Torres",
+        "role": "guide"
+      },
+      "user": {
+        "user_id": 1,
+        "username": "maria_g",
+        "first_name": "María",
+        "last_name": "Gómez",
+        "role": "user"
+      },
+      "created_at": "2025-06-05T00:00:00.000Z"
+    }
+  }
+  ```
+
+- `400 Bad Request`: ID inválido (no numérico).
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Relación no encontrada o no autorizada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `DELETE /api/guide-user/:guideUserId`
+
+Elimina una relación guía-usuario específica por su ID.
+
+#### Request
+
+```
+DELETE /api/guide-user/1
+```
+
+#### Responses
+
+- `200 OK`: Relación eliminada correctamente.
+  ```json
+  {
+    "message": "Relación guía-usuario eliminada correctamente",
+    "guideUserId": 1
+  }
+  ```
+
+- `400 Bad Request`: ID inválido (no numérico).
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Relación no encontrada o no autorizada.
 - `500 Internal Server Error`: Error del servidor.
 
 ---
@@ -528,23 +777,75 @@ La API usa autenticación **Bearer Token (JWT)** para endpoints protegidos.
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-- **Token**: Obtenido vía `POST /auth/login`.
+- **Token**: Obtenido vía `POST /api/auth/login`.
 - **Expiración**: 5 horas.
-- **Validación**: Requerida para endpoints `/users`, `/profile-goals`, y `/guide-user`.
+- **Validación**: Requerida para endpoints `/users`, `/profile-goals`, `/routines`, y `/guide-user`.
 
 ---
 
 ## 📚 Documentación Adicional
 
 - **Swagger UI**: Explora todos los endpoints en `http://localhost:3000/api-docs`.
-- **Peticiones de Prueba**: Usa el archivo `peticiones.rest` para probar los endpoints con herramientas como REST Client (VS Code).
-- **Base de Datos**: Estructura definida en scripts SQL para tablas `users`, `profiles`, `profile_interests`, `profile_goals`, y `guide_user`.
+- **Peticiones de Prueba**: Usa el archivo `peticiones.rest` para probar los endpoints con herramientas como REST Client (VS Code) o Postman.
+- **Base de Datos**: Estructura definida en scripts SQL para tablas `users`, `profiles`, `profile_interests`, `profile_goals`, `routines`, `activities`, `categories`, y `guide_user`.
+- **Pruebas**:
+  - Autentica un guía (ej., Carlos, `user_id: 6`) o usuario (ej., María, `user_id: 1`) con `POST /api/auth/login`.
+  - Usa el token para probar endpoints protegidos.
+  - Verifica cambios en MySQL (ej., `SELECT * FROM guide_user;`).
 
 ---
 
 ## 🌟 Características para Neurodivergencia
 
-- **Respuestas Claras**: Mensajes descriptivos (ej., "Objetivo creado correctamente") para reducir confusión.
-- **Personalización**: Soporte para `color_palette` en perfiles, permitiendo interfaces adaptadas a necesidades sensoriales.
-- **Organización**: Objetivos con `progress` y `status` para fomentar el seguimiento visual de metas.
-- **Flexibilidad**: Los objetivos pueden pausarse o cancelarse, apoyando la adaptabilidad de usuarios con TDAH/TEA.
+- **Respuestas Claras**: Mensajes descriptivos y estructurados (ej., "Relación guía-usuario creada correctamente") para reducir confusión.
+- **Personalización**: Soporte para `color_palette` en perfiles, permitiendo interfaces visuales adaptadas a necesidades sensoriales.
+- **Organización**: Rutinas y objetivos con campos como `progress`, `status`, y `start_time` para un seguimiento visual claro.
+- **Flexibilidad**: Los usuarios pueden pausar/cancelar objetivos (`PUT /api/profile-goals/:id`) o eliminar relaciones guía-usuario (`DELETE /api/guide-user/:guideUserId`), apoyando la adaptabilidad.
+- **Estructura**: Relaciones guía-usuario accesibles en una sola llamada (`GET /api/guide-user`), minimizando la carga cognitiva para usuarios con TDAH.
+- **Seguridad**: Verificaciones de permisos aseguran que solo los involucrados accedan/modifiquen datos, creando un entorno confiable para usuarios con TEA.
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Backend**: Node.js, Express
+- **Base de Datos**: MySQL
+- **Autenticación**: JSON Web Tokens (JWT), bcryptjs
+- **Documentación**: Swagger
+- **Almacenamiento de Imágenes**: Cloudinary (opcional)
+- **Otras Dependencias**: cors, dotenv, multer, nodemon
+
+---
+
+## 📝 Notas para Desarrolladores
+
+- **Errores Comunes**:
+  - **401 Unauthorized**: Verifica que el token sea válido y no haya expirado.
+  - **403 Forbidden**: Asegúrate de que el usuario tiene el rol correcto (ej., `guide` para `POST /api/guide-user`).
+  - **409 Conflict**: Revisa duplicados en `email` (`POST /api/auth/register`) o relaciones (`POST /api/guide-user`).
+  - **Header name must be a valid HTTP token**: Si usas REST Client, revisa espacios/caracteres invisibles en `peticiones.rest`. Usa Postman o curl como alternativa:
+    ```bash
+    curl -X POST http://localhost:3000/api/guide-user \
+      -H "Authorization: Bearer <tu-token>" \
+      -H "Content-Type: application/json" \
+      -d '{"guideId": 6, "userId": 5}'
+    ```
+
+- **Depuración**:
+  - Añade logs en `checkToken` para inspeccionar encabezados:
+    ```javascript
+    console.log('Headers received:', req.headers);
+    ```
+  - Verifica la base de datos con consultas SQL (ej., `SELECT * FROM guide_user;`).
+  - Usa `peticiones.rest` limpio para evitar errores de formato:
+    ```rest
+    @host = http://localhost:3000
+    @token = <tu-token>
+    POST {{host}}/api/guide-user
+    Authorization: Bearer {{token}}
+    Content-Type: application/json
+    {
+      "guideId": 6,
+      "userId": 5
+    }
+    ```

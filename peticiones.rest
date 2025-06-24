@@ -342,7 +342,7 @@ Authorization: Bearer {{token}}
 #   - 403: Relación no encontrada o no autorizada.
 #   - 500: Error en la base de datos.
 ###
-GET {{host}}/api/guide-user/2
+GET {{host}}/api/guide-user/6
 Authorization: Bearer {{token}}
 
 # Petición para eliminar una relación guía-usuario específica
@@ -360,7 +360,8 @@ Authorization: Bearer {{token}}
 #   - 401: Token inválido o no proporcionado.
 #   - 403: Relación no encontrada o no autorizada.
 #   - 500: Error en la base de datos.
-DELETE {{host}}/api/guide-user/1
+###
+DELETE {{host}}/api/guide-user/6
 Authorization: Bearer {{token}}
 
 
@@ -373,7 +374,6 @@ GET {{host}}/api/users/profile
 Authorization: Bearer {{token}}
 
 ### Actualizar perfil multipart
-
 PUT {{host}}/api/users/profile
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 Authorization: Bearer {{token}}
@@ -467,88 +467,53 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "progress": 30,
-  "status": "active",
-  "deadline": "2025-07-20"
+    "guideId": 25,
+    "userId": 6
 }
 
 
-### Eliminar un objetivo
-DELETE {{host}}/api/profile-goals/6
-Authorization: Bearer {{token}}
+### Sección de Actividades
 
-
-##############
-#  ROUTINES  #
-##############
-
-# Petición para obtener todas las rutinas asociadas al usuario autenticado
-# - Propósito: Obtener las rutinas y sus actividades asociadas para un usuario (user_id) o guía (guide_id).
-# - Autenticación: Requiere un token JWT válido en el encabezado Authorization.
-# - Endpoint: GET /api/routines
-# - Relevancia para neurodivergencia: Proporciona una vista estructurada y ordenada de las rutinas, esencial para usuarios con TDAH que necesitan organización clara.
-# - Respuesta esperada (200, para user_id=1):
-#   {
-#     "message": "Rutinas obtenidas correctamente",
-#     "routines": [
-#       {
-#         "routine_id": 1,
-#         "user_id": 1,
-#         "name": "Rutina matutina",
-#         "description": "Yoga y planificación diaria",
-#         "is_template": false,
-#         "created_at": "2025-06-05T00:00:00.000Z",
-#         "updated_at": "2025-06-05T00:00:00.000Z",
-#         "start_time": "2025-06-05T08:00:00.000Z",
-#         "end_time": "2025-06-05T09:00:00.000Z",
-#         "daily_routine": "Daily",
-#         "activities": [
-#           {
-#             "activity_id": 1,
-#             "activity_name": "Yoga matutino",
-#             "description": "15 minutos de yoga suave",
-#             "day_of_week": "Monday",
-#             "start_time": "08:00:00",
-#             "end_time": "08:15:00",
-#             "location": "Sala",
-#             "datetime_start": "2025-06-05T08:00:00.000Z",
-#             "datetime_end": "2025-06-05T08:15:00.000Z",
-#             "icon": null,
-#             "category": {
-#               "name": "Yoga",
-#               "color": "#32CD32"
-#             }
-#           },
-#           {
-#             "activity_id": 2,
-#             "activity_name": "Planificar día",
-#             "description": "Escribir 3 tareas",
-#             "day_of_week": "Monday",
-#             "start_time": "08:20:00",
-#             "end_time": "08:30:00",
-#             "location": "Escritorio",
-#             "datetime_start": "2025-06-05T08:20:00.000Z",
-#             "datetime_end": "2025-06-05T08:30:00.000Z",
-#             "icon": null,
-#             "category": {
-#               "name": "Relajación",
-#               "color": "#4682B4"
-#             }
-#           }
-#         ]
-#       }
-#     ]
-#   }
-# - Errores:
-#   - 401: Token inválido o no proporcionado.
-#   - 500: Error en la base de datos (MySQL).
-# - Nota: El token debe corresponder a un usuario autenticado (obtenido vía POST /api/auth/login).
-#   Por ejemplo, para user_id=1 (maria_g), usa el token generado al iniciar sesión con:
-#   { "email": "maria.gomez@example.com", "password": "<contraseña>" }
-
-GET {{host}}/api/routines
-Authorization: Bearer {{token}}
+GET {{host}}/api/activities
 
 ###
-GET {{host}}/api/routines/1
-Authorization: Bearer {{token}}
+
+GET {{host}}/api/activities/11
+
+###
+
+POST {{host}}/api/activities
+Content-Type: application/json
+
+{
+    "routine_id": 2,
+    "category_id": 1,
+    "title": "Actividad de prueba 6",
+    "description": "Descripción de la actividad de prueba 2",
+    "day_of_week": "Tuesday",
+    "location": "OfFice",
+    "datetime_start": "2025-06-24 07:00:00",
+    "datetime_end": "2025-06-24 08:00:00",
+    "icon": "icon.png"
+}
+
+###
+
+PUT {{host}}/api/activities/11
+Content-Type: application/json
+
+{
+    "routine_id": 2,
+    "category_id": 1,
+    "title": "Actividad actualizada",
+    "description": "Descripción de la actividad de prueba 2",
+    "day_of_week": "Tuesday",
+    "location": "OfFice",
+    "datetime_start": "2025-06-24 07:00:00",
+    "datetime_end": "2025-06-24 08:00:00",
+    "icon": "icon.png"
+}
+
+###
+
+DELETE {{host}}/api/activities/13

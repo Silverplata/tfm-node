@@ -3,10 +3,12 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA1NDU0ODgsImV4cCI6MTc1MDU2MzQ4OH0.mKH9jqMuErTwk2ccMxGTuqWfbGYHSWY5SsU_oCViHyw
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA3MjIzMzQsImV4cCI6MTc1MDc0MDMzNH0.rMF5ZsE25HvomqKW6WO88ms61hTzNAOBjCH2WLtGco4
 
 
-
+##################################################################
+##############                POST                  ##############
+##################################################################
 ### Registrar usuario con imagen (multipart/form-data)
 POST {{host}}/api/auth/register
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -59,7 +61,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {    
-    "email": "carla@gmail.com",
+    "email": "sandra@gmail.com",
     "password": "a1b2c3d6"
 } 
 
@@ -96,6 +98,55 @@ Authorization: Bearer {{token}}
   "progress": 0,
   "deadline": "2025-08-01"
 }
+
+### Crear categoría
+POST {{host}}/api/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "name": "hobbies",
+  "color": "#32CD32",
+  "icon": "hoobyes-icon.png",
+  "description": "Hobbies y actividades recreativas",
+}
+
+### crear rutina
+POST {{host}}/api/routines
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "targetUserId": 1,
+  "name": "Rutina vespertina",
+  "description": "Actividades para la tarde",
+  "is_template": false,
+  "start_time": "2025-06-05T16:00:00Z",
+  "end_time": "2025-06-05T17:00:00Z",
+  "daily_routine": "Daily"
+}
+
+
+### crear actividad en rutina
+POST {{host}}/api/activities
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "routine_id": 7,
+  "title": "Estudio fotografía",
+  "description": "Resolver ejercicios de fotografía",
+  "day_of_week": "tuesday",
+  "start_time": "16:30:00",
+  "end_time": "17:00:00",
+  "location": "Sala de fotografía",
+  "datetime_start": "2025-06-06T16:30:00Z",
+  "datetime_end": "2025-06-06T17:00:00Z",
+  "icon": "photo.png",
+  "category_id": 3
+}
+
+##################################################################
+##############                PUT                   ##############
+##################################################################
 
 ### Actualizar perfil multipart
 PUT {{host}}/api/users/profile
@@ -141,6 +192,43 @@ Authorization: Bearer {{token}}
   "deadline": "2025-07-20"
 }
 
+### actualizar una rutina
+PUT {{host}}/api/routines/7
+Authorization: Bearer {{token}}
+Content-Type: application/json
+{
+  "targetUserId": 1,
+  "name": "Rutina vespertina actualizada",
+  "description": "Actividades para la tarde",
+  "is_template": false,
+  "start_time": "2025-06-05T16:00:00Z",
+  "end_time": "2025-06-05T17:00:00Z",
+  "daily_routine": "Daily"
+}
+
+
+### actualizar una actividad
+PUT {{host}}/api/activities/15
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "routine_id": 7,
+  "title": "Estudiar matemáticas avanzadas",
+  "description": "Resolver ejercicios de cálculo",
+  "start_time": "16:45:00",
+  "end_time": "17:15:00",
+  "location": "Sala de estudio",
+  "datetime_start": "2025-06-06T16:30:00Z",
+  "datetime_end": "2025-06-06T17:00:00Z",
+  "icon": "book.png",
+  "day_of_week": "Tuesday",
+  "category_id": 7
+}
+
+##################################################################
+##############                GET                   ##############
+##################################################################
 
 ### Obtener perfil
 GET {{host}}/api/users/profile
@@ -151,7 +239,7 @@ GET {{host}}/api/guide-user
 Authorization: Bearer {{token}}
 
 ### Obtener un guía por ID
-GET {{host}}/api/guide-user/6
+GET {{host}}/api/guide-user/7
 Authorization: Bearer {{token}}
 
 ### Listar intereses
@@ -166,8 +254,30 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/profile-goals
 Authorization: Bearer {{token}}
 
+### Obtener categorías
+GET {{host}}/api/categories
+Authorization: Bearer {{token}}
+
+### Obtener routinas
+GET {{host}}/api/routines
+Authorization: Bearer {{token}}
+
+### Obtener routinas por id de usuario
+GET {{host}}/api/routines/6
+Authorization: Bearer {{token}}
+
+### Obtener Todas las Actividades
+GET {{host}}/api/activities
+Authorization: Bearer {{token}}
+
+### Obtener actividad por ID
+GET {{host}}/api/activities/18
+Authorization: Bearer {{token}}
 
 
+##################################################################
+##############                DELETE                ##############
+##################################################################
 
 ### Eliminar una relación guía-usuario
 DELETE {{host}}/api/guide-user/6
@@ -175,6 +285,14 @@ Authorization: Bearer {{token}}
 
 ### Eliminar un objetivo
 DELETE {{host}}/api/profile-goals/6
+Authorization: Bearer {{token}}
+
+### Eliminar una rutina
+DELETE {{host}}/api/routines/6
+Authorization: Bearer {{token}}
+
+### Eliminar una actividad
+DELETE {{host}}/api/activities/16
 Authorization: Bearer {{token}}
 
 
