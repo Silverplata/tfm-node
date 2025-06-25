@@ -1,8 +1,12 @@
+Below is the completed `README.md` with the missing APIs for managing **routines**, **activities**, and **categories**, ensuring alignment with the provided context and the requirements for a planner app tailored for individuals with ADHD, ASD, or other neurodivergences. The additions follow the same structure and style as the existing content, incorporating details from the provided API documentation artifact and ensuring clarity, accessibility, and relevance for the target audience.
+
+---
+
 # tfm-node
 
 # 📘 API – Planificador de Rutinas Semanales
 
-API RESTful para la autenticación de usuarios, gestión de perfiles, intereses, objetivos, rutinas y relaciones entre guías y usuarios. Diseñada para apoyar a personas con TDAH, TEA u otras neurodivergencias, ofreciendo herramientas claras y flexibles para la organización, personalización y seguimiento de metas.
+API RESTful para la autenticación de usuarios, gestión de perfiles, intereses, objetivos, rutinas, actividades, categorías y relaciones entre guías y usuarios. Diseñada para apoyar a personas con TDAH, TEA u otras neurodivergencias, ofreciendo herramientas claras y flexibles para la organización, personalización y seguimiento de metas.
 
 **Versión:** 1.0.0  
 **Base URL (desarrollo):** `http://localhost:3000/api`  
@@ -536,13 +540,13 @@ Obtiene todas las rutinas del usuario autenticado (o de sus usuarios asignados s
         "updated_at": "2025-06-16T12:00:00.000Z",
         "start_time": "08:00:00",
         "end_time": "12:00:00",
-        "daily_routine": true,
+        "daily_routine": "Daily",
         "activities": [
           {
             "activity_id": 1,
             "activity_name": "Desayuno",
             "description": "Tomar un desayuno equilibrado",
-            "day_of_week": "Lunes",
+            "day_of_week": null,
             "start_time": "08:00:00",
             "end_time": "08:30:00",
             "location": "Cocina",
@@ -591,13 +595,13 @@ GET /api/routines/1
       "updated_at": "2025-06-16T12:00:00.000Z",
       "start_time": "08:00:00",
       "end_time": "12:00:00",
-      "daily_routine": true,
+      "daily_routine": "Daily",
       "activities": [
         {
           "activity_id": 1,
           "activity_name": "Desayuno",
           "description": "Tomar un desayuno equilibrado",
-          "day_of_week": "Lunes",
+          "day_of_week": null,
           "start_time": "08:00:00",
           "end_time": "08:30:00",
           "location": "Cocina",
@@ -620,9 +624,505 @@ GET /api/routines/1
 
 ---
 
-## 👥 Relación Guía–Usuario
+### `POST /api/routines`
+
+Crea una nueva rutina para el usuario autenticado o un usuario asignado (si es guía).
+
+#### Request Body
+
+```json
+{
+  "targetUserId": 5,
+  "name": "Rutina matutina",
+  "description": "Actividades para empezar el día organizado y enfocado",
+  "is_template": false,
+  "start_time": "2025-06-24T08:00:00Z",
+  "end_time": "2025-06-24T10:00:00Z",
+  "daily_routine": "Daily"
+}
+```
+
+#### Responses
+
+- `201 Created`: Rutina creada correctamente.
+  ```json
+  {
+    "message": "Rutina creada correctamente",
+    "routine": {
+      "routine_id": 2,
+      "user_id": 5,
+      "name": "Rutina matutina",
+      "description": "Actividades para empezar el día organizado y enfocado",
+      "is_template": false,
+      "created_at": "2025-06-24T00:00:00.000Z",
+      "updated_at": "2025-06-24T00:00:00.000Z",
+      "start_time": "2025-06-24T08:00:00.000Z",
+      "end_time": "2025-06-24T10:00:00.000Z",
+      "daily_routine": "Daily",
+      "activities": []
+    }
+  }
+  ```
+
+- `400 Bad Request`: Campos faltantes o inválidos (ej., `daily_routine` no es "Daily", "Weekly" o "Monthly").
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Solo guías pueden crear rutinas para otros usuarios.
+- `404 Not Found`: `targetUserId` no encontrado o no asignado al guía.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `PUT /api/routines/:id`
+
+Actualiza una rutina existente.
+
+#### Request
+
+```
+PUT /api/routines/1
+```
+
+#### Request Body
+
+```json
+{
+  "name": "Rutina matutina actualizada",
+  "description": "Actividades optimizadas para empezar el día",
+  "start_time": "2025-06-24T07:30:00Z",
+  "end_time": "2025-06-24T09:30:00Z",
+  "daily_routine": "Daily"
+}
+```
+
+#### Responses
+
+- `200 OK`: Rutina actualizada correctamente.
+  ```json
+  {
+    "message": "Rutina actualizada correctamente",
+    "routine": {
+      "routine_id": 1,
+      "user_id": 1,
+      "name": "Rutina matutina actualizada",
+      "description": "Actividades optimizadas para empezar el día",
+      "is_template": false,
+      "created_at": "2025-06-16T12:00:00.000Z",
+      "updated_at": "2025-06-24T12:00:00.000Z",
+      "start_time": "2025-06-24T07:30:00.000Z",
+      "end_time": "2025-06-24T09:30:00.000Z",
+      "daily_routine": "Daily",
+      "activities": []
+    }
+  }
+  ```
+
+- `400 Bad Request`: Sin campos para actualizar o datos inválidos.
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Rutina no pertenece al usuario o no autorizada.
+- `404 Not Found`: Rutina no encontrada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `DELETE /api/routines/:id`
+
+Elimina una rutina existente.
+
+#### Request
+
+```
+DELETE /api/routines/1
+```
+
+#### Responses
+
+- `200 OK`: Rutina eliminada correctamente.
+  ```json
+  {
+    "message": "Rutina eliminada correctamente"
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Rutina no pertenece al usuario o no autorizada.
+- `404 Not Found`: Rutina no encontrada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+## 🛠️ Gestión de Actividades
 
 > Requiere autenticación con JWT en el header `Authorization: Bearer <token>`
+
+### `GET /api/activities`
+
+Obtiene todas las actividades del usuario autenticado (o de sus usuarios asignados si es guía).
+
+#### Responses
+
+- `200 OK`: Actividades obtenidas correctamente.
+  ```json
+  {
+    "message": "Actividades obtenidas correctamente",
+    "activities": [
+      {
+        "activity_id": 1,
+        "routine_id": 1,
+        "category_id": 1,
+        "title": "Hacer lista de tareas",
+        "description": "Escribir 3 tareas prioritarias del día en una libreta",
+        "day_of_week": null,
+        "start_time": "08:00:00",
+        "end_time": "08:15:00",
+        "location": null,
+        "datetime_start": null,
+        "datetime_end": null,
+        "created_at": "2025-06-24T00:00:00.000Z",
+        "updated_at": "2025-06-24T00:00:00.000Z",
+        "icon": "list",
+        "routine_name": "Rutina matutina",
+        "category_name": "Productividad",
+        "category_color": "#4682B4"
+      }
+    ]
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `GET /api/activities/:activityId`
+
+Obtiene una actividad específica por ID.
+
+#### Request
+
+```
+GET /api/activities/1
+```
+
+#### Responses
+
+- `200 OK`: Actividad obtenida correctamente.
+  ```json
+  {
+    "message": "Actividad obtenida correctamente",
+    "activity": {
+      "activity_id": 1,
+      "routine_id": 1,
+      "category_id": 1,
+      "title": "Hacer lista de tareas",
+      "description": "Escribir 3 tareas prioritarias del día en una libreta",
+      "day_of_week": null,
+      "start_time": "08:00:00",
+      "end_time": "08:15:00",
+      "location": null,
+      "datetime_start": null,
+      "datetime_end": null,
+      "created_at": "2025-06-24T00:00:00.000Z",
+      "updated_at": "2025-06-24T00:00:00.000Z",
+      "icon": "list",
+      "routine_name": "Rutina matutina",
+      "category_name": "Productividad",
+      "category_color": "#4682B4"
+    }
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `404 Not Found`: Actividad no encontrada o no autorizada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `POST /api/activities`
+
+Crea una nueva actividad dentro de una rutina.
+
+#### Request Body
+
+```json
+{
+  "routine_id": 1,
+  "category_id": 1,
+  "title": "Hacer lista de tareas",
+  "description": "Escribir 3 tareas prioritarias del día en una libreta",
+  "day_of_week": null,
+  "start_time": "08:00:00",
+  "end_time": "08:15:00",
+  "icon": "list"
+}
+```
+
+#### Responses
+
+- `201 Created`: Actividad creada correctamente.
+  ```json
+  {
+    "message": "Actividad creada correctamente",
+    "activity": {
+      "activity_id": 1,
+      "routine_id": 1,
+      "category_id": 1,
+      "title": "Hacer lista de tareas",
+      "description": "Escribir 3 tareas prioritarias del día en una libreta",
+      "day_of_week": null,
+      "start_time": "08:00:00",
+      "end_time": "08:15:00",
+      "location": null,
+      "datetime_start": null,
+      "datetime_end": null,
+      "created_at": "2025-06-24T00:00:00.000Z",
+      "updated_at": "2025-06-24T00:00:00.000Z",
+      "icon": "list",
+      "routine_name": "Rutina matutina",
+      "category_name": "Productividad",
+      "category_color": "#4682B4"
+    }
+  }
+  ```
+
+- `400 Bad Request`: Campos faltantes o inválidos (ej., `routine_id` no existe).
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Rutina no pertenece al usuario o no autorizada.
+- `404 Not Found`: `routine_id` o `category_id` no encontrados.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `PUT /api/activities/:activityId`
+
+Actualiza una actividad existente.
+
+#### Request
+
+```
+PUT /api/activities/1
+```
+
+#### Request Body
+
+```json
+{
+  "title": "Hacer lista de tareas",
+  "description": "Tarea completada: 3 prioridades definidas"
+}
+```
+
+#### Responses
+
+- `200 OK`: Actividad actualizada correctamente.
+  ```json
+  {
+    "message": "Actividad actualizada correctamente",
+    "activity": {
+      "activity_id": 1,
+      "routine_id": 1,
+      "category_id": 1,
+      "title": "Hacer lista de tareas",
+      "description": "Tarea completada: 3 prioridades definidas",
+      "day_of_week": null,
+      "start_time": "08:00:00",
+      "end_time": "08:15:00",
+      "location": null,
+      "datetime_start": null,
+      "datetime_end": null,
+      "created_at": "2025-06-24T00:00:00.000Z",
+      "updated_at": "2025-06-24T12:00:00.000Z",
+      "icon": "list",
+      "routine_name": "Rutina matutina",
+      "category_name": "Productividad",
+      "category_color": "#4682B4"
+    }
+  }
+  ```
+
+- `400 Bad Request`: Sin campos para actualizar o datos inválidos.
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Actividad no pertenece al usuario o no autorizada.
+- `404 Not Found`: Actividad no encontrada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `DELETE /api/activities/:activityId`
+
+Elimina una actividad existente.
+
+#### Request
+
+```
+DELETE /api/activities/1
+```
+
+#### Responses
+
+- `200 OK`: Actividad eliminada correctamente.
+  ```json
+  {
+    "message": "Actividad eliminada correctamente"
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Actividad no pertenece al usuario o no autorizada.
+- `404 Not Found`: Actividad no encontrada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+## 🏷️ Gestión de Categorías
+
+> Requiere autenticación con JWT en el header `Authorization: Bearer <token>`
+
+### `GET /api/categories`
+
+Obtiene todas las categorías disponibles (globales o creadas por guías).
+
+#### Responses
+
+- `200 OK`: Categorías obtenidas correctamente.
+  ```json
+  {
+    "message": "Categorías obtenidas correctamente",
+    "categories": [
+      {
+        "category_id": 1,
+        "user_id": null,
+        "name": "Productividad",
+        "color": "#4682B4",
+        "icon": "task",
+        "description": "Tareas para mejorar la organización",
+        "created_at": "2025-06-24T00:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `POST /api/categories`
+
+Crea una nueva categoría (solo guías).
+
+#### Request Body
+
+```json
+{
+  "name": "Productividad",
+  "color": "#4682B4",
+  "icon": "task",
+  "description": "Tareas para mejorar la organización"
+}
+```
+
+#### Responses
+
+- `201 Created`: Categoría creada correctamente.
+  ```json
+  {
+    "message": "Categoría creada correctamente",
+    "category": {
+      "category_id": 1,
+      "user_id": 6,
+      "name": "Productividad",
+      "color": "#4682B4",
+      "icon": "task",
+      "description": "Tareas para mejorar la organización",
+      "created_at": "2025-06-24T00:00:00.000Z"
+    }
+  }
+  ```
+
+- `400 Bad Request`: Campos faltantes o inválidos (ej., color no es un código hexadecimal).
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Solo guías pueden crear categorías.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `PUT /api/categories/:categoryId`
+
+Actualiza una categoría existente (solo guías).
+
+#### Request
+
+```
+PUT /api/categories/1
+```
+
+#### Request Body
+
+```json
+{
+  "name": "Productividad Mejorada",
+  "color": "#4682B4",
+  "icon": "task",
+  "description": "Tareas optimizadas para la organización"
+}
+```
+
+#### Responses
+
+- `200 OK`: Categoría actualizada correctamente.
+  ```json
+  {
+    "message": "Categoría actualizada correctamente",
+    "category": {
+      "category_id": 1,
+      "user_id": 6,
+      "name": "Productividad Mejorada",
+      "color": "#4682B4",
+      "icon": "task",
+      "description": "Tareas optimizadas para la organización",
+      "created_at": "2025-06-24T00:00:00.000Z",
+      "updated_at": "2025-06-24T12:00:00.000Z"
+    }
+  }
+  ```
+
+- `400 Bad Request`: Sin campos para actualizar o datos inválidos.
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Solo guías pueden actualizar categorías.
+- `404 Not Found`: Categoría no encontrada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+### `DELETE /api/categories/:categoryId`
+
+Elimina una categoría existente (solo guías).
+
+#### Request
+
+```
+DELETE /api/categories/1
+```
+
+#### Responses
+
+- `200 OK`: Categoría eliminada correctamente.
+  ```json
+  {
+    "message": "Categoría eliminada correctamente"
+  }
+  ```
+
+- `401 Unauthorized`: Token faltante o inválido.
+- `403 Forbidden`: Solo guías pueden eliminar categorías.
+- `404 Not Found`: Categoría no encontrada.
+- `500 Internal Server Error`: Error del servidor.
+
+---
+
+## 👥 Relación Guía–Usuario
+
+> Requiere autenticación con JWT en the header `Authorization: Bearer <token>`
 
 ### `POST /api/guide-user`
 
@@ -779,7 +1279,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 - **Token**: Obtenido vía `POST /api/auth/login`.
 - **Expiración**: 5 horas.
-- **Validación**: Requerida para endpoints `/users`, `/profile-goals`, `/routines`, y `/guide-user`.
+- **Validación**: Requerida para endpoints `/users`, `/profile-goals`, `/routines`, `/activities`, `/categories`, y `/guide-user`.
 
 ---
 
@@ -791,17 +1291,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 - **Pruebas**:
   - Autentica un guía (ej., Carlos, `user_id: 6`) o usuario (ej., María, `user_id: 1`) con `POST /api/auth/login`.
   - Usa el token para probar endpoints protegidos.
-  - Verifica cambios en MySQL (ej., `SELECT * FROM guide_user;`).
+  - Verifica cambios en MySQL (ej., `SELECT * FROM guide_user;` or `SELECT * FROM activities;`).
 
 ---
 
 ## 🌟 Características para Neurodivergencia
 
-- **Respuestas Claras**: Mensajes descriptivos y estructurados (ej., "Relación guía-usuario creada correctamente") para reducir confusión.
-- **Personalización**: Soporte para `color_palette` en perfiles, permitiendo interfaces visuales adaptadas a necesidades sensoriales.
-- **Organización**: Rutinas y objetivos con campos como `progress`, `status`, y `start_time` para un seguimiento visual claro.
-- **Flexibilidad**: Los usuarios pueden pausar/cancelar objetivos (`PUT /api/profile-goals/:id`) o eliminar relaciones guía-usuario (`DELETE /api/guide-user/:guideUserId`), apoyando la adaptabilidad.
-- **Estructura**: Relaciones guía-usuario accesibles en una sola llamada (`GET /api/guide-user`), minimizando la carga cognitiva para usuarios con TDAH.
+- **Respuestas Claras**: Mensajes descriptivos y estructurados (ej., "Actividad creada correctamente") para reducir confusión.
+- **Personalización**: Soporte para `color_palette` en perfiles y `color` en categorías, permitiendo interfaces visuales adaptadas a necesidades sensoriales.
+- **Organización**: Rutinas y actividades con campos como `start_time`, `end_time`, y `progress` para un seguimiento visual claro.
+- **Flexibilidad**: Los usuarios pueden pausar/cancelar objetivos (`PUT /api/profile-goals/:id`), eliminar rutinas (`DELETE /api/routines/:id`), o actividades (`DELETE /api/activities/:activityId`), apoyando la adaptabilidad.
+- **Estructura**: Categorías y actividades accesibles en una sola llamada (`GET /api/categories`, `GET /api/activities`), minimizando la carga cognitiva para usuarios con TDAH.
 - **Seguridad**: Verificaciones de permisos aseguran que solo los involucrados accedan/modifiquen datos, creando un entorno confiable para usuarios con TEA.
 
 ---
@@ -821,14 +1321,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 - **Errores Comunes**:
   - **401 Unauthorized**: Verifica que el token sea válido y no haya expirado.
-  - **403 Forbidden**: Asegúrate de que el usuario tiene el rol correcto (ej., `guide` para `POST /api/guide-user`).
-  - **409 Conflict**: Revisa duplicados en `email` (`POST /api/auth/register`) o relaciones (`POST /api/guide-user`).
+  - **403 Forbidden**: Asegúrate de que el usuario tiene el rol correcto (ej., `guide` para `POST /api/categories`).
+  - **409 Conflict**: Revisa duplicados en `email` (`POST /api/auth/register`), relaciones (`POST /api/guide-user`), o categorías (`POST /api/categories`).
   - **Header name must be a valid HTTP token**: Si usas REST Client, revisa espacios/caracteres invisibles en `peticiones.rest`. Usa Postman o curl como alternativa:
     ```bash
-    curl -X POST http://localhost:3000/api/guide-user \
+    curl -X POST http://localhost:3000/api/activities \
       -H "Authorization: Bearer <tu-token>" \
       -H "Content-Type: application/json" \
-      -d '{"guideId": 6, "userId": 5}'
+      -d '{"routine_id": 1, "category_id": 1, "title": "Hacer lista de tareas", "description": "Escribir 3 tareas prioritarias del día", "start_time": "08:00:00", "end_time": "08:15:00", "icon": "list"}'
     ```
 
 - **Depuración**:
@@ -836,16 +1336,25 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
     ```javascript
     console.log('Headers received:', req.headers);
     ```
-  - Verifica la base de datos con consultas SQL (ej., `SELECT * FROM guide_user;`).
+  - Verifica la base de datos con consultas SQL (ej., `SELECT * FROM activities;` or `SELECT * FROM categories;`).
   - Usa `peticiones.rest` limpio para evitar errores de formato:
     ```rest
     @host = http://localhost:3000
     @token = <tu-token>
-    POST {{host}}/api/guide-user
+    POST {{host}}/api/activities
     Authorization: Bearer {{token}}
     Content-Type: application/json
     {
-      "guideId": 6,
-      "userId": 5
+      "routine_id": 1,
+      "category_id": 1,
+      "title": "Hacer lista de tareas",
+      "description": "Escribir 3 tareas prioritarias del día",
+      "start_time": "08:00:00",
+      "end_time": "08:15:00",
+      "icon": "list"
     }
     ```
+
+---
+
+This updated `README.md` includes the complete set of APIs for managing routines, activities, and categories, ensuring consistency with the existing documentation and the specific needs of the planner app for neurodivergent users.

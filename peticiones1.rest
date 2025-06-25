@@ -3,7 +3,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA3MjIzMzQsImV4cCI6MTc1MDc0MDMzNH0.rMF5ZsE25HvomqKW6WO88ms61hTzNAOBjCH2WLtGco4
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA4NDE5MDksImV4cCI6MTc1MDg1OTkwOX0.YYT0qMUhZoJ_JD_7KgmXnar7hC_q4o8AbY8MVVUC6nk
 
 
 ##################################################################
@@ -116,12 +116,12 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 {
   "targetUserId": 1,
-  "name": "Rutina vespertina",
-  "description": "Actividades para la tarde",
+  "name": "Rutina segundaria",
+  "description": "Actividades",
   "is_template": false,
-  "start_time": "2025-06-05T16:00:00Z",
-  "end_time": "2025-06-05T17:00:00Z",
-  "daily_routine": "Daily"
+  "start_time": "2025-06-25T16:00:00Z",
+  "end_time": "2025-06-30T17:00:00Z",
+  "daily_routine": "weekly"
 }
 
 
@@ -234,7 +234,7 @@ Content-Type: application/json
 GET {{host}}/api/users/profile
 Authorization: Bearer {{token}}
 
-### Obtener perfil por ID
+### Obtener usuario a mi cargo como guia
 GET {{host}}/api/guide-user
 Authorization: Bearer {{token}}
 
@@ -246,8 +246,12 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/users/interests
 Authorization: Bearer {{token}}
 
+### Listar intereses por ID de usuario
+GET {{host}}/api/users/interests/17
+Authorization: Bearer {{token}}
+
 ### Obtener un objetivo por ID
-GET {{host}}/api/profile-goals/8
+GET {{host}}/api/profile-goals/10
 Authorization: Bearer {{token}}
 
 ### Obtener todos los objetivos

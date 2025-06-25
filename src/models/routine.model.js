@@ -187,8 +187,11 @@ const Routine = {
       if (!targetUserId) {
         throw new Error('El ID del usuario objetivo es obligatorio');
       }
-      if (daily_routine && !['Daily', 'Weekly', 'Monthly'].includes(daily_routine)) {
-        throw new Error('El tipo de rutina debe ser Daily, Weekly o Monthly');
+
+      // Normalizar daily_routine a minúsculas para coincidir con el ENUM de MySQL
+      const normalizedDailyRoutine = daily_routine ? daily_routine.toLowerCase() : 'daily';
+      if (!['daily', 'weekly', 'monthly'].includes(normalizedDailyRoutine)) {
+        throw new Error('El tipo de rutina debe ser daily, weekly o monthly');
       }
 
       // Verificar que el usuario objetivo existe
@@ -197,9 +200,22 @@ const Routine = {
         throw new Error('Usuario objetivo no encontrado');
       }
 
+      // Formatear fechas para MySQL
+      const formatDate = (dateStr) => {
+        if (!dateStr) return null;
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+          throw new Error(`Formato de fecha inválido: ${dateStr}`);
+        }
+        return date.toISOString().slice(0, 19).replace('T', ' ');
+      };
+
+      const formattedStartTime = formatDate(start_time);
+      const formattedEndTime = formatDate(end_time);
+
       const [result] = await pool.query(
         'INSERT INTO routines (user_id, name, description, is_template, start_time, end_time, daily_routine) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [targetUserId, name, description || null, is_template ? 1 : 0, start_time || null, end_time || null, daily_routine || 'Daily']
+        [targetUserId, name, description || null, is_template ? 1 : 0, formattedStartTime, formattedEndTime, normalizedDailyRoutine]
       );
 
       return {
@@ -210,9 +226,9 @@ const Routine = {
         is_template: Boolean(is_template),
         created_at: new Date(),
         updated_at: new Date(),
-        start_time: start_time || null,
-        end_time: end_time || null,
-        daily_routine: daily_routine || 'Daily',
+        start_time: formattedStartTime,
+        end_time: formattedEndTime,
+        daily_routine: normalizedDailyRoutine,
         activities: [],
       };
     } catch (error) {
@@ -226,8 +242,11 @@ const Routine = {
       if (!name) {
         throw new Error('El nombre de la rutina es obligatorio');
       }
-      if (daily_routine && !['Daily', 'Weekly', 'Monthly'].includes(daily_routine)) {
-        throw new Error('El tipo de rutina debe ser Daily, Weekly o Monthly');
+
+      // Normalizar daily_routine a minúsculas
+      const normalizedDailyRoutine = daily_routine ? daily_routine.toLowerCase() : null;
+      if (normalizedDailyRoutine && !['daily', 'weekly', 'monthly'].includes(normalizedDailyRoutine)) {
+        throw new Error('El tipo de rutina debe ser daily, weekly o monthly');
       }
 
       // Verificar autorización
@@ -250,6 +269,19 @@ const Routine = {
         throw new Error('Rutina no encontrada o no autorizada');
       }
 
+      // Formatear fechas para MySQL
+      const formatDate = (dateStr) => {
+        if (!dateStr) return null;
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+          throw new Error(`Formato de fecha inválido: ${dateStr}`);
+        }
+        return date.toISOString().slice(0, 19).replace('T', ' ');
+      };
+
+      const formattedStartTime = formatDate(start_time);
+      const formattedEndTime = formatDate(end_time);
+
       const updateFields = [];
       const updateValues = [];
       if (name) {
@@ -266,15 +298,15 @@ const Routine = {
       }
       if (start_time !== undefined) {
         updateFields.push('start_time = ?');
-        updateValues.push(start_time || null);
+        updateValues.push(formattedStartTime);
       }
       if (end_time !== undefined) {
         updateFields.push('end_time = ?');
-        updateValues.push(end_time || null);
+        updateValues.push(formattedEndTime);
       }
-      if (daily_routine) {
+      if (normalizedDailyRoutine) {
         updateFields.push('daily_routine = ?');
-        updateValues.push(daily_routine);
+        updateValues.push(normalizedDailyRoutine);
       }
       updateFields.push('updated_at = ?');
       updateValues.push(new Date());
