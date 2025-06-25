@@ -258,6 +258,10 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/profile-goals
 Authorization: Bearer {{token}}
 
+### Obtener todos los objetivos de un usuario
+GET {{host}}/api/profile-goals/17
+Authorization: Bearer {{token}}
+
 ### Obtener categorías
 GET {{host}}/api/categories
 Authorization: Bearer {{token}}
@@ -267,7 +271,7 @@ GET {{host}}/api/routines
 Authorization: Bearer {{token}}
 
 ### Obtener routinas por id de usuario
-GET {{host}}/api/routines/6
+GET {{host}}/api/routines/7
 Authorization: Bearer {{token}}
 
 ### Obtener Todas las Actividades

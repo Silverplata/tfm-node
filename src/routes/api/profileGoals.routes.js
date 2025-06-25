@@ -6,9 +6,11 @@ const {
   createGoal,
   updateGoal,
   deleteGoal,
+  getGoalsByUserId,
 } = require('../../controllers/profileGoals.controller');
 
 router.get('/', checkToken, getAllGoals);
+router.get('/:iduser', checkToken, getGoalsByUserId);
 router.get('/:id', checkToken, getGoalById);
 
 router.post('/', checkToken, createGoal);
