@@ -206,6 +206,8 @@ const getRoutines = async (req, res, next) => {
  *         description: No autorizado
  *       403:
  *         description: No autorizado para crear rutinas para este usuario
+ *       404:
+ *         description: Usuario objetivo no encontrado
  *       500:
  *         description: Error interno del servidor
  */
@@ -214,17 +216,25 @@ const createRoutine = async (req, res, next) => {
     const { userId, role } = req.user;
     const { targetUserId, name, description, is_template, start_time, end_time, daily_routine } = req.body;
 
+    // Validar que el targetUserId sea un número entero
+    if (!/^\d+$/.test(targetUserId)) {
+      return res.status(400).json({ message: 'El ID del usuario objetivo debe ser un número entero' });
+    }
+
     // Validar que el usuario puede crear la rutina
-    if (role === 'guide') {
+    if (userId !== parseInt(targetUserId)) {
+      // Solo los guías pueden crear rutinas para otros usuarios
+      if (role !== 'guide') {
+        return res.status(403).json({ message: 'Solo los guías pueden crear rutinas para otros usuarios' });
+      }
+      // Verificar que el guía tiene una relación con el targetUserId
       const [guideUserRows] = await pool.query(
         'SELECT user_id FROM guide_user WHERE guide_id = ? AND user_id = ?',
         [userId, targetUserId]
       );
-      if (!guideUserRows[0] && userId !== targetUserId) {
+      if (!guideUserRows[0]) {
         return res.status(403).json({ message: 'No autorizado para crear rutinas para este usuario' });
       }
-    } else if (userId !== targetUserId) {
-      return res.status(403).json({ message: 'Solo los guías pueden crear rutinas para otros usuarios' });
     }
 
     const newRoutine = await Routine.createRoutine({
