@@ -3,7 +3,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA4NDE5MDksImV4cCI6MTc1MDg1OTkwOX0.YYT0qMUhZoJ_JD_7KgmXnar7hC_q4o8AbY8MVVUC6nk
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE3LCJyb2xlIjoidXNlciIsImlhdCI6MTc1MDg5MjY4NCwiZXhwIjoxNzUwOTEwNjg0fQ.gojK2ZycSQXC2qv_K0lxltcIkS_I4yUJLW1oKgYH358
 
 
 ##################################################################
@@ -61,7 +61,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {    
-    "email": "sandra@gmail.com",
+    "email": "carla@gmail.com",
     "password": "a1b2c3d6"
 } 
 
@@ -115,8 +115,8 @@ POST {{host}}/api/routines
 Authorization: Bearer {{token}}
 Content-Type: application/json
 {
-  "targetUserId": 1,
-  "name": "Rutina segundaria",
+  "targetUserId": 616,
+  "name": "Rutina propia",
   "description": "Actividades",
   "is_template": false,
   "start_time": "2025-06-25T16:00:00Z",
@@ -251,7 +251,7 @@ GET {{host}}/api/users/interests/17
 Authorization: Bearer {{token}}
 
 ### Obtener un objetivo por ID
-GET {{host}}/api/profile-goals/10
+GET {{host}}/api/profile-goals/17
 Authorization: Bearer {{token}}
 
 ### Obtener todos los objetivos
