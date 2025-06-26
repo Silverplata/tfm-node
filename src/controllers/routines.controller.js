@@ -1,12 +1,12 @@
 const Routine = require('../models/routine.model');
-const pool = require('../config/db'); // Importar pool
+const pool = require('../config/db');
 
 /**
  * @swagger
  * /api/routines:
  *   get:
  *     summary: Obtiene todas las rutinas asociadas al usuario autenticado
- *     description: Devuelve una lista de rutinas para el usuario autenticado, ya sea como usuario (sus propias rutinas) o como guía (rutinas de usuarios asignados). Incluye actividades asociadas.
+ *     description: Devuelve una lista de rutinas para el usuario autenticado. Para usuarios con rol 'user', devuelve sus propias rutinas. Para guías, devuelve sus propias rutinas y las de usuarios asignados (relación guide_user). Incluye actividades asociadas.
  *     tags: [Routines]
  *     security:
  *       - bearerAuth: []
@@ -116,10 +116,162 @@ const getRoutines = async (req, res, next) => {
 
 /**
  * @swagger
+ * /api/routines/user/{userId}:
+ *   get:
+ *     summary: Obtiene las rutinas de un usuario específico
+ *     description: Devuelve las rutinas asociadas a un userId específico. Solo accesible para el propio usuario o su guía (si está asignado en guide_user). Incluye actividades asociadas.
+ *     tags: [Routines]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del usuario cuyas rutinas se desean obtener
+ *     responses:
+ *       200:
+ *         description: Rutinas obtenidas exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Rutinas obtenidas correctamente
+ *                 routines:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       routine_id:
+ *                         type: integer
+ *                       user_id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       is_template:
+ *                         type: boolean
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                       updated_at:
+ *                         type: string
+ *                         format: date-time
+ *                       start_time:
+ *                         type: string
+ *                         format: date-time
+ *                       end_time:
+ *                         type: string
+ *                         format: date-time
+ *                       daily_routine:
+ *                         type: string
+ *                         enum: [Daily, Weekly, Monthly]
+ *                       activities:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             activity_id:
+ *                               type: integer
+ *                             activity_name:
+ *                               type: string
+ *                             description:
+ *                               type: string
+ *                               nullable: true
+ *                             day_of_week:
+ *                               type: string
+ *                               nullable: true
+ *                             start_time:
+ *                               type: string
+ *                               format: time
+ *                               nullable: true
+ *                             end_time:
+ *                               type: string
+ *                               format: time
+ *                               nullable: true
+ *                             location:
+ *                               type: string
+ *                               nullable: true
+ *                             datetime_start:
+ *                               type: string
+ *                               format: date-time
+ *                               nullable: true
+ *                             datetime_end:
+ *                               type: string
+ *                               format: date-time
+ *                               nullable: true
+ *                             icon:
+ *                               type: string
+ *                               nullable: true
+ *                             category:
+ *                               type: object
+ *                               nullable: true
+ *                               properties:
+ *                                 name:
+ *                                   type: string
+ *                                 color:
+ *                                   type: string
+ *       400:
+ *         description: ID de usuario inválido
+ *       401:
+ *         description: No autorizado, token inválido
+ *       403:
+ *         description: No autorizado para acceder a las rutinas de este usuario
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
+const getRoutinesByUserId = async (req, res, next) => {
+  try {
+    const { userId, role } = req.user;
+    const { userId: targetUserId } = req.params;
+
+    if (!/^\d+$/.test(targetUserId)) {
+      return res.status(400).json({ message: 'El ID del usuario debe ser un número entero' });
+    }
+
+    // Validar autorización
+    if (userId !== parseInt(targetUserId)) {
+      if (role !== 'guide') {
+        return res.status(403).json({ message: 'Solo los guías pueden acceder a las rutinas de otros usuarios' });
+      }
+      const [guideUserRows] = await pool.query(
+        'SELECT user_id FROM guide_user WHERE guide_id = ? AND user_id = ?',
+        [userId, targetUserId]
+      );
+      if (!guideUserRows[0]) {
+        return res.status(403).json({ message: 'No autorizado para acceder a las rutinas de este usuario' });
+      }
+    }
+
+    // Verificar que el usuario objetivo existe
+    const [userRows] = await pool.query('SELECT user_id FROM users WHERE user_id = ?', [targetUserId]);
+    if (!userRows[0]) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const routines = await Routine.getRoutinesByUserId(parseInt(targetUserId));
+    res.status(200).json({
+      message: 'Rutinas obtenidas correctamente',
+      routines,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @swagger
  * /api/routines:
  *   post:
  *     summary: Crea una nueva rutina para un usuario
- *     description: Permite a un usuario crear una rutina para sí mismo o a un guía crear una rutina para un usuario asignado. Inserta en la tabla routines.
+ *     description: Permite a un usuario crear una rutina para sí mismo o a un guía crear una rutina para sí mismo o para un usuario asignado (relación guide_user). Inserta en la tabla routines.
  *     tags: [Routines]
  *     security:
  *       - bearerAuth: []
@@ -270,7 +422,7 @@ const createRoutine = async (req, res, next) => {
  * /api/routines/{id}:
  *   put:
  *     summary: Actualiza una rutina existente
- *     description: Permite actualizar los campos de una rutina específica, como nombre, descripción o actividades asociadas. Solo accesible para el usuario propietario o su guía.
+ *     description: Permite actualizar los campos de una rutina específica, como nombre, descripción o actividades asociadas. Solo accesible para el usuario propietario o su guía (si está asignado en guide_user).
  *     tags: [Routines]
  *     security:
  *       - bearerAuth: []
@@ -403,7 +555,7 @@ const updateRoutine = async (req, res, next) => {
  * /api/routines/{id}:
  *   delete:
  *     summary: Elimina una rutina específica
- *     description: Elimina una rutina por su ID, junto con sus actividades asociadas (en cascada). Solo accesible para el usuario propietario o su guía.
+ *     description: Elimina una rutina por su ID, junto con sus actividades asociadas (en cascada). Solo accesible para el usuario propietario o su guía (si está asignado en guide_user).
  *     tags: [Routines]
  *     security:
  *       - bearerAuth: []
@@ -465,7 +617,7 @@ const deleteRoutine = async (req, res, next) => {
  * /api/routines/{id}:
  *   get:
  *     summary: Obtiene los detalles de una rutina específica por su ID
- *     description: Devuelve los detalles de una rutina específica, incluyendo sus actividades asociadas. Solo accesible para el usuario propietario o su guía.
+ *     description: Devuelve los detalles de una rutina específica, incluyendo sus actividades asociadas. Solo accesible para el usuario propietario o su guía (si está asignado en guide_user).
  *     tags: [Routines]
  *     security:
  *       - bearerAuth: []
@@ -493,7 +645,7 @@ const deleteRoutine = async (req, res, next) => {
  *                     routine_id:
  *                       type: integer
  *                     user_id:
- *                       type: integer
+ *                         type: integer
  *                     name:
  *                       type: string
  *                     description:
@@ -593,4 +745,4 @@ const getRoutineById = async (req, res, next) => {
   }
 };
 
-module.exports = { getRoutines, getRoutineById, createRoutine, updateRoutine, deleteRoutine };
+module.exports = { getRoutines, getRoutinesByUserId, getRoutineById, createRoutine, updateRoutine, deleteRoutine };
