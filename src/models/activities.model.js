@@ -64,10 +64,10 @@ const selectById = async (activityId, userId, role) => {
         FROM activities a
         LEFT JOIN routines r ON a.routine_id = r.routine_id
         LEFT JOIN categories c ON a.category_id = c.category_id
-        JOIN guide_user gu ON r.user_id = gu.user_id
-        WHERE a.activity_id = ? AND gu.guide_id = ?
+        LEFT JOIN guide_user gu ON r.user_id = gu.user_id
+        WHERE a.activity_id = ? AND (r.user_id = ? OR gu.guide_id = ?)
       `;
-      values = [activityId, userId];
+      values = [activityId, userId, userId];
     } else {
       query = `
         SELECT 
@@ -100,10 +100,10 @@ const insert = async ({ routine_id, category_id, title, description, day_of_week
       authQuery = `
         SELECT r.routine_id
         FROM routines r
-        JOIN guide_user gu ON r.user_id = gu.user_id
-        WHERE r.routine_id = ? AND gu.guide_id = ?
+        LEFT JOIN guide_user gu ON r.user_id = gu.user_id
+        WHERE r.routine_id = ? AND (r.user_id = ? OR gu.guide_id = ?)
       `;
-      authValues = [routine_id, userId];
+      authValues = [routine_id, userId, userId];
     } else {
       authQuery = 'SELECT routine_id FROM routines WHERE routine_id = ? AND user_id = ?';
       authValues = [routine_id, userId];

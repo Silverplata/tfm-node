@@ -3,7 +3,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTA5MzI0NTQsImV4cCI6MTc1MDk1MDQ1NH0.5Jxipl1CXUz9ANJMHtMewGYltEGdvdYtDLkZNDIcz8k
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTEwNjY4MDgsImV4cCI6MTc1MTA4NDgwOH0.TJHmntrP5XxVI5ggZKZ01bR2R8r-O6hIruVWRU5yhck
 
 
 ##################################################################
@@ -20,7 +20,7 @@ vanesa
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="email"
 
-vanesa@gmail.com
+spy@gmail.com
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="password"
 
@@ -28,7 +28,7 @@ a1b2c3d6
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="first_name"
 
-vanesa
+spy
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="last_name"
 
@@ -71,7 +71,7 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 {
   "guideId": 16,
-  "userId": 17
+  "userId": 13
 }
 
 ### Añadir interés
@@ -131,17 +131,17 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "routine_id": 7,
-  "title": "Estudio fotografía",
-  "description": "Resolver ejercicios de fotografía",
-  "day_of_week": "tuesday",
+  "routine_id": 11,
+  "title": "post prueba5",
+  "description": "no deberia dejar crear el guia 16 a la rutina 1",
+  "day_of_week": "Martes",
   "start_time": "16:30:00",
   "end_time": "17:00:00",
   "location": "Sala de fotografía",
   "datetime_start": "2025-06-06T16:30:00Z",
   "datetime_end": "2025-06-06T17:00:00Z",
   "icon": "photo.png",
-  "category_id": 3
+  "category_id": 2
 }
 
 ##################################################################
@@ -197,9 +197,9 @@ PUT {{host}}/api/routines/7
 Authorization: Bearer {{token}}
 Content-Type: application/json
 {
-  "targetUserId": 1,
-  "name": "Rutina vespertina actualizada",
-  "description": "Actividades para la tarde",
+  "targetUserId": 7,
+  "name": "Rutina test put",
+  "description": "Actividades para la test",
   "is_template": false,
   "start_time": "2025-06-05T16:00:00Z",
   "end_time": "2025-06-05T17:00:00Z",
@@ -208,21 +208,21 @@ Content-Type: application/json
 
 
 ### actualizar una actividad
-PUT {{host}}/api/activities/15
+PUT {{host}}/api/activities/49
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "routine_id": 7,
-  "title": "Estudiar matemáticas avanzadas",
-  "description": "Resolver ejercicios de cálculo",
+  "routine_id": 11,
+  "title": "Estudiar matemáticas PUT3",
+  "description": "Resolver PUT back",
   "start_time": "16:45:00",
   "end_time": "17:15:00",
   "location": "Sala de estudio",
-  "datetime_start": "2025-06-06T16:30:00Z",
-  "datetime_end": "2025-06-06T17:00:00Z",
+  "datetime_start": "2025-06-26T16:30:00Z",
+  "datetime_end": "2025-06-26T17:00:00Z",
   "icon": "book.png",
-  "day_of_week": "Tuesday",
+  "day_of_week": "Martes",
   "category_id": 7
 }
 
@@ -236,6 +236,10 @@ Authorization: Bearer {{token}}
 
 ### Obtener usuario a mi cargo como guia
 GET {{host}}/api/guide-user
+Authorization: Bearer {{token}}
+
+### Obtener usuarios disponibles para asignar como guía
+GET {{host}}/api/users/available
 Authorization: Bearer {{token}}
 
 ### Obtener un guía por ID
@@ -270,16 +274,20 @@ Authorization: Bearer {{token}}
 GET {{host}}/api/routines
 Authorization: Bearer {{token}}
 
+### Obtener routinas por id de rutina
+GET {{host}}/api/routines/13
+Authorization: Bearer {{token}}
+
 ### Obtener routinas por id de usuario
-GET {{host}}/api/routines/7
+GET {{host}}/api/routines/user/16
 Authorization: Bearer {{token}}
 
 ### Obtener Todas las Actividades
 GET {{host}}/api/activities
 Authorization: Bearer {{token}}
 
-### Obtener actividad por ID
-GET {{host}}/api/activities/18
+### Obtener actividad por ID de actividad
+GET {{host}}/api/activities/30
 Authorization: Bearer {{token}}
 
 
@@ -296,11 +304,11 @@ DELETE {{host}}/api/profile-goals/6
 Authorization: Bearer {{token}}
 
 ### Eliminar una rutina
-DELETE {{host}}/api/routines/6
+DELETE {{host}}/api/routines/8
 Authorization: Bearer {{token}}
 
 ### Eliminar una actividad
-DELETE {{host}}/api/activities/16
+DELETE {{host}}/api/activities/45
 Authorization: Bearer {{token}}
 
 
