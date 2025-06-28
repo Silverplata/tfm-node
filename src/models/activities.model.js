@@ -145,10 +145,10 @@ const updateById = async (activityId, { routine_id, category_id, title, descript
         SELECT a.activity_id
         FROM activities a
         JOIN routines r ON a.routine_id = r.routine_id
-        JOIN guide_user gu ON r.user_id = gu.user_id
-        WHERE a.activity_id = ? AND gu.guide_id = ?
+        LEFT JOIN guide_user gu ON r.user_id = gu.user_id
+        WHERE a.activity_id = ? AND (r.user_id = ? OR gu.guide_id = ?)
       `;
-      authValues = [activityId, userId];
+      authValues = [activityId, userId, userId];
     } else {
       authQuery = `
         SELECT a.activity_id
@@ -195,10 +195,10 @@ const deleteById = async (activityId, userId, role) => {
         SELECT a.activity_id
         FROM activities a
         JOIN routines r ON a.routine_id = r.routine_id
-        JOIN guide_user gu ON r.user_id = gu.user_id
-        WHERE a.activity_id = ? AND gu.guide_id = ?
+        LEFT JOIN guide_user gu ON r.user_id = gu.user_id
+        WHERE a.activity_id = ? AND (r.user_id = ? OR gu.guide_id = ?)
       `;
-      authValues = [activityId, userId];
+      authValues = [activityId, userId, userId];
     } else {
       authQuery = `
         SELECT a.activity_id

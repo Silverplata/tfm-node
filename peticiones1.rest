@@ -3,7 +3,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTEwNjY4MDgsImV4cCI6MTc1MTA4NDgwOH0.TJHmntrP5XxVI5ggZKZ01bR2R8r-O6hIruVWRU5yhck
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTEwNjk0OTksImV4cCI6MTc1MTA4NzQ5OX0.k9d9c9DDBbcj0KqzWz76Fy4zH_ObAnX-KhFmPZc7Ia0
 
 
 ##################################################################
@@ -208,13 +208,13 @@ Content-Type: application/json
 
 
 ### actualizar una actividad
-PUT {{host}}/api/activities/49
+PUT {{host}}/api/activities/53
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
   "routine_id": 11,
-  "title": "Estudiar matemáticas PUT3",
+  "title": "Estudiar matemáticas PUT7",
   "description": "Resolver PUT back",
   "start_time": "16:45:00",
   "end_time": "17:15:00",
