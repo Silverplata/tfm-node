@@ -305,9 +305,83 @@ const deleteGuideUserRelation = async (req, res, next) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/guide-user/unassigned-users:
+ *   get:
+ *     summary: Obtiene usuarios con rol 'user' que no tienen guía asignada
+ *     tags: [GuideUser]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Usuarios sin guía obtenidos exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       user_id:
+ *                         type: integer
+ *                         example: 1
+ *                       username:
+ *                         type: string
+ *                         example: "usuario123"
+ *                       first_name:
+ *                         type: string
+ *                         example: "Juan"
+ *                       last_name:
+ *                         type: string
+ *                         example: "Pérez"
+ *                       email:
+ *                         type: string
+ *                         example: "juan@email.com"
+ *                       age:
+ *                         type: integer
+ *                         example: 25
+ *                       gender:
+ *                         type: string
+ *                         example: "Hombre"
+ *                       role:
+ *                         type: string
+ *                         example: "user"
+ *       401:
+ *         description: No autorizado, token inválido
+ *       403:
+ *         description: No autorizado, solo guías pueden acceder
+ */
+const getUnassignedUsers = async (req, res, next) => {
+  try {
+    // Verificar que el usuario autenticado sea un guía
+    if (req.user.role !== 'guide') {
+      return res.status(403).json({ 
+        message: 'Solo los guías pueden acceder a la lista de usuarios sin asignar' 
+      });
+    }
+
+    const users = await GuideUser.getUnassignedUsers();
+    
+    res.status(200).json({
+      message: 'Usuarios sin guía asignada obtenidos correctamente',
+      users,
+      count: users.length
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createGuideUser,
   getAllGuideUserRelations,
   getGuideUserRelationById,
   deleteGuideUserRelation,
+  getUnassignedUsers
 };
