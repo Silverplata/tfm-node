@@ -135,6 +135,32 @@ const GuideUser = {
     }
   },
 
+  async getUnassignedUsers() {
+    try {
+      const [rows] = await pool.query(`
+        SELECT 
+          u.user_id,
+          u.username,
+          u.first_name,
+          u.last_name,
+          u.email,
+          u.age,
+          u.gender,
+          p.role
+        FROM users u
+        JOIN profiles p ON u.user_id = p.user_id
+        LEFT JOIN guide_user gu ON u.user_id = gu.user_id
+        WHERE p.role = 'user' 
+          AND gu.user_id IS NULL
+        ORDER BY u.first_name, u.last_name
+      `);
+      
+      return rows;
+    } catch (error) {
+      throw new Error(`Error al obtener usuarios sin guía asignada: ${error.message}`);
+    }
+  },
+
   async getRelationById(guideUserId, userId, role) {
     try {
       let query;
