@@ -220,4 +220,60 @@ const deleteById = async (activityId, userId, role) => {
   }
 };
 
-module.exports = { selectAll, selectById, insert, updateById, deleteById };
+const selectByRoutineAndCategory = async (routineId, categoryId, userId, role) => {
+  try {
+    // Validar autorización para la rutina
+    let authQuery;
+    let authValues;
+    
+    if (role === 'guide') {
+      authQuery = `
+        SELECT r.routine_id
+        FROM routines r
+        LEFT JOIN guide_user gu ON r.user_id = gu.user_id
+        WHERE r.routine_id = ? AND (r.user_id = ? OR gu.guide_id = ?)
+      `;
+      authValues = [routineId, userId, userId];
+    } else {
+      authQuery = 'SELECT routine_id FROM routines WHERE routine_id = ? AND user_id = ?';
+      authValues = [routineId, userId];
+    }
+    
+    const [authRows] = await pool.query(authQuery, authValues);
+    if (authRows.length === 0) {
+      throw new Error('No autorizado para ver las actividades de esta rutina');
+    }
+
+    // Construir la consulta principal
+    let query = `
+      SELECT 
+        a.activity_id, a.title, a.description, a.day_of_week, 
+        TIME_FORMAT(a.start_time, '%H:%i') AS start_time, 
+        TIME_FORMAT(a.end_time, '%H:%i') AS end_time,
+        a.location, a.datetime_start, a.datetime_end, a.icon,
+        c.name AS category_name,
+        c.color AS category_color
+      FROM activities a
+      LEFT JOIN categories c ON a.category_id = c.category_id
+      WHERE a.routine_id = ?
+    `;
+    
+    const values = [routineId];
+    
+    // Agregar filtro por categoría si se proporciona
+    if (categoryId) {
+      query += ' AND a.category_id = ?';
+      values.push(categoryId);
+    }
+    
+    // Ordenar por hora de inicio
+    query += ' ORDER BY a.start_time ASC';
+    
+    const [result] = await pool.query(query, values);
+    return result;
+  } catch (error) {
+    throw new Error(`Error al obtener actividades por rutina y categoría: ${error.message}`);
+  }
+};
+
+module.exports = { selectAll, selectById, insert, updateById, deleteById, selectByRoutineAndCategory };
