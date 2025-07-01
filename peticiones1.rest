@@ -3,7 +3,7 @@
 # Token JWT predefinido para pruebas, corresponde a userId: 8 con role: "guide".
 # Nota: Este token tiene fechas futuras (marzo 2026), lo que sugiere que es un ejemplo.
 # Para pruebas reales, generar un token con POST /api/auth/login.
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTEyMzUxMjcsImV4cCI6MTc1MTI1MzEyN30.9_Ifk9ks_M3a0sSA9a1LpGDOsWr0IsPDBJQjfmzo6xI
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE2LCJyb2xlIjoiZ3VpZGUiLCJpYXQiOjE3NTEzMTI0NzksImV4cCI6MTc1MTMzMDQ3OX0.4NUgjVisVDhZ0b6YAIu8_P-fXs75rh_vnm5jrTWFeQY
 
 
 ##################################################################
@@ -122,6 +122,18 @@ Content-Type: application/json
   "start_time": "2025-06-25T16:00:00Z",
   "end_time": "2025-06-30T17:00:00Z",
   "daily_routine": "weekly"
+}
+
+### Crear rutina desde plantilla
+POST {{host}}/api/routines/create-from-template
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "templateId": 12,
+  "start_time": "2025-07-01T08:00:00Z",
+  "end_time": "2025-07-07T22:00:00Z",
+  "daily_routine": "Daily"
 }
 
 
@@ -284,6 +296,18 @@ Authorization: Bearer {{token}}
 
 ### Obtener routinas por id de usuario
 GET {{host}}/api/routines/user/16
+Authorization: Bearer {{token}}
+
+### Obtener routinas publicas
+GET {{host}}/api/routines/public/templates
+Authorization: Bearer {{token}}
+
+### Obtener routinas publicas por mi
+GET {{host}}/api/routines/shared/by-me
+Authorization: Bearer {{token}}
+
+### Rutinas compartidas recibidas
+GET {{host}}/api/routines/shared/received
 Authorization: Bearer {{token}}
 
 ### Obtener Todas las Actividades
