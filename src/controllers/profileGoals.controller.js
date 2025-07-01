@@ -310,7 +310,7 @@ const getGoalById = async (req, res, next) => {
 const createGoal = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const { name, goal_type, description, target_hours_weekly, status, progress, deadline } = req.body;
+    const { name, goal_type, description, target_hours_weekly, status, progress, deadline, need_reminder } = req.body;
 
     // Validaciones
     if (!name) {
@@ -328,6 +328,9 @@ const createGoal = async (req, res, next) => {
     if (deadline && isNaN(Date.parse(deadline))) {
       return res.status(400).json({ message: 'Fecha límite inválida' });
     }
+    if (need_reminder !== undefined && typeof need_reminder !== 'boolean') {
+      return res.status(400).json({ message: 'El valor de need_reminder debe ser booleano (true o false)' });
+    }
 
     const newGoal = await ProfileGoal.create(userId, {
       name,
@@ -337,6 +340,7 @@ const createGoal = async (req, res, next) => {
       status,
       progress,
       deadline,
+      need_reminder
     });
     res.status(201).json({
       message: 'Objetivo creado correctamente',
@@ -352,6 +356,7 @@ const createGoal = async (req, res, next) => {
         deadline: newGoal.deadline,
         createdAt: newGoal.created_at,
         updatedAt: newGoal.updated_at,
+        need_reminder: newGoal.need_reminder
       },
     });
   } catch (error) {
@@ -443,7 +448,7 @@ const updateGoal = async (req, res, next) => {
   try {
     const userId = req.user.userId;
     const goalId = parseInt(req.params.id);
-    const { name, goal_type, description, target_hours_weekly, status, progress, deadline } = req.body;
+    const { name, goal_type, description, target_hours_weekly, status, progress, deadline, need_reminder } = req.body;
 
     // Validaciones
     if (!name && !goal_type && !description && target_hours_weekly === undefined && !status && progress === undefined && !deadline) {
@@ -461,6 +466,9 @@ const updateGoal = async (req, res, next) => {
     if (deadline && isNaN(Date.parse(deadline))) {
       return res.status(400).json({ message: 'Fecha límite inválida' });
     }
+    if (need_reminder !== undefined && typeof need_reminder !== 'boolean') {
+      return res.status(400).json({ message: 'El valor de need_reminder debe ser booleano (true o false)' });
+    }
 
     const updatedGoal = await ProfileGoal.update(goalId, userId, {
       name,
@@ -470,6 +478,7 @@ const updateGoal = async (req, res, next) => {
       status,
       progress,
       deadline,
+      need_reminder
     });
     res.status(200).json({
       message: 'Objetivo actualizado correctamente',
@@ -485,6 +494,7 @@ const updateGoal = async (req, res, next) => {
         deadline: updatedGoal.deadline,
         createdAt: updatedGoal.created_at,
         updatedAt: updatedGoal.updated_at,
+        need_reminder: updateGoal.need_reminder
       },
     });
   } catch (error) {
