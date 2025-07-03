@@ -193,16 +193,13 @@ const ProfileGoal = {
       if (!Array.isArray(goals) || goals.length === 0) {
         throw new Error('Lista de objetivos vacía o inválida');
       }
-      console.log(goals)
       const placeholders = goals.map(() => '?').join(', ');
-      console.log(placeholders)
 
       const sql = `
         UPDATE profile_goals 
         SET mail_sent = 1 
         WHERE goal_id IN (${placeholders})
       `;
-
       const result = await pool.query(sql, goals);
       return result;
     } catch (error) {

@@ -47,7 +47,6 @@ const transporter = nodemailer.createTransport({
 cron.schedule('* * * * *', async () => {
   try {
     const goals = await Goal.getReminders();
-    console.log(goals)
     if (!Array.isArray(goals) || goals.length === 0) {
       return;
     }
