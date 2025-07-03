@@ -193,9 +193,9 @@ const ProfileGoal = {
       if (!Array.isArray(goals) || goals.length === 0) {
         throw new Error('Lista de objetivos vacía o inválida');
       }
-
-      const goalIds = goals.map(g => g.goal_id); // Extraer los IDs reales
-      const placeholders = goalIds.map(() => '?').join(', ');
+      console.log(goals)
+      const placeholders = goals.map(() => '?').join(', ');
+      console.log(placeholders)
 
       const sql = `
         UPDATE profile_goals 
@@ -203,7 +203,7 @@ const ProfileGoal = {
         WHERE goal_id IN (${placeholders})
       `;
 
-      const result = await pool.query(sql, goalIds);
+      const result = await pool.query(sql, goals);
       return result;
     } catch (error) {
       throw new Error(`Error al actualizar objetivos: ${error.message}`);

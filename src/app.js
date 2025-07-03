@@ -47,7 +47,7 @@ const transporter = nodemailer.createTransport({
 cron.schedule('* * * * *', async () => {
   try {
     const goals = await Goal.getReminders();
-
+    console.log(goals)
     if (!Array.isArray(goals) || goals.length === 0) {
       return;
     }
@@ -55,7 +55,7 @@ cron.schedule('* * * * *', async () => {
     for (const goal of goals) {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
-        to: goal.email,
+        to: process.env.EMAIL_USER,
         subject: 'Recordatorio de objetivo',
         text: `Buenos días!
         No olvides tu objetivo: ${goal.name} con fecha límite ${goal.deadline}`
@@ -65,6 +65,7 @@ cron.schedule('* * * * *', async () => {
     // Actualizar estado de recordatorio
     await Goal.updateReminders(goals.map(goal => goal.goal_id));
   } catch (error) {
+    console.log(error)
   }
 });
     
