@@ -19,9 +19,13 @@ API RESTful para la autenticación de usuarios, gestión de perfiles, intereses,
    cd tfm-node
    ```
 
-2. **Instalar dependencias**:
+2. **Instalar dependencias con angular v20**:
    ```bash
    npm install
+   ```
+   **Instalar dependencias con angular v19**:
+   ```bash
+   npm install --legacy-peer-deps
    ```
 
 3. **Configurar variables de entorno**:
@@ -37,6 +41,8 @@ API RESTful para la autenticación de usuarios, gestión de perfiles, intereses,
      CLOUDINARY_CLOUD_NAME=repositorio imagenes cloud
      CLOUDINARY_API_KEY=api
      CLOUDINARY_API_SECRET=tu_secreto_cloud
+     EMAIL_USER = 'correo_destinatario'
+     EMAIL_PASS= contraseña_correo
      ```
 
 4. **Configurar la base de datos**:
