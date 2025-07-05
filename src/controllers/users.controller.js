@@ -459,6 +459,33 @@ const addInterest = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
+  
+};
+
+const getGuide = async (req, res, next) => {
+  try {
+    const { userid } = req.params;
+  
+    if (!/^\d+$/.test(userid)) {
+        return res.status(400).json({ message: 'El ID de usuario debe ser un número entero' });
+      }
+    
+    const guides = await User.getUserGuide(userid);
+    console.log(guides)
+    res.status(200).json({
+      message: 'Guias obtenidos correctamente',
+      guides
+    })
+  } catch (error) {
+    if (error.message.includes('Usuario no encontrado')) {
+      return res.status(404).json({ message: error.message });
+    }
+    if (error.message.includes('No autorizado')) {
+      return res.status(403).json({ message: error.message });
+    }
+    next(error);
+  }
 };
 
 /**
@@ -532,4 +559,5 @@ module.exports = {
   addInterest,
   updateAvailability,
   getInterestsByUserId,
+  getGuide
 };

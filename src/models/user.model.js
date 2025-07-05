@@ -254,6 +254,18 @@ const User = {
       throw new Error(`Error al actualizar disponibilidad: ${error.message}`);
     }
   },
+
+  async getUserGuide(userId) {
+  const [guides] = await pool.query(
+  `SELECT u.first_name, u.last_name
+   FROM guide_user gu
+   JOIN users u ON gu.guide_id = u.user_id
+   JOIN profiles p ON u.user_id = p.user_id
+   WHERE gu.user_id = ? AND p.role = 'guide'`,
+  [userId]
+);
+  return guides;
+}
 };
 
 module.exports = User;
