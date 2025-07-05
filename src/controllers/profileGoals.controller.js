@@ -67,6 +67,99 @@ const getAllGoals = async (req, res, next) => {
 
 /**
  * @swagger
+ * /api/profile-goals/{iduser}:
+ *   get:
+ *     summary: Obtiene todos los objetivos de un usuario específico
+ *     description: Permite obtener los objetivos de un usuario por su ID. Accesible solo si el usuario autenticado es el propio usuario o un guía con una relación en guide_user.
+ *     tags: [ProfileGoals]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: iduser
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del usuario cuyos objetivos se desean obtener
+ *     responses:
+ *       200:
+ *         description: Objetivos obtenidos exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Objetivos obtenidos correctamente
+ *                 goals:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       goalId:
+ *                         type: integer
+ *                       profileId:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       goalType:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       targetHoursWeekly:
+ *                         type: integer
+ *                       status:
+ *                         type: string
+ *                         enum: [active, completed, paused, cancelled]
+ *                       progress:
+ *                         type: integer
+ *                       deadline:
+ *                         type: string
+ *                         format: date
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *       400:
+ *         description: ID de usuario inválido
+ *       401:
+ *         description: No autorizado, token inválido
+ *       403:
+ *         description: No autorizado para acceder a los objetivos de este usuario
+ *       404:
+ *         description: Usuario no encontrado
+ */
+const getGoalsByUserId = async (req, res, next) => {
+  try {
+    const { iduser } = req.params;
+    const { userId, role } = req.user;
+
+    // Validar que iduser sea un número entero
+    if (!/^\d+$/.test(iduser)) {
+      return res.status(400).json({ message: 'El ID de usuario debe ser un número entero' });
+    }
+
+    const goals = await ProfileGoal.getAllByUserIdWithAuthorization(parseInt(iduser), userId, role);
+    res.status(200).json({
+      message: 'Objetivos obtenidos correctamente',
+      goals,
+    });
+  } catch (error) {
+    if (error.message.includes('Usuario no encontrado')) {
+      return res.status(404).json({ message: error.message });
+    }
+    if (error.message.includes('No autorizado')) {
+      return res.status(403).json({ message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * @swagger
  * /api/profile-goals/{id}:
  *   get:
  *     summary: Obtiene un objetivo específico por ID
@@ -217,7 +310,7 @@ const getGoalById = async (req, res, next) => {
 const createGoal = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const { name, goal_type, description, target_hours_weekly, status, progress, deadline } = req.body;
+    const { name, goal_type, description, target_hours_weekly, status, progress, deadline, need_reminder } = req.body;
 
     // Validaciones
     if (!name) {
@@ -235,6 +328,9 @@ const createGoal = async (req, res, next) => {
     if (deadline && isNaN(Date.parse(deadline))) {
       return res.status(400).json({ message: 'Fecha límite inválida' });
     }
+    if (need_reminder !== undefined && typeof need_reminder !== 'boolean') {
+      return res.status(400).json({ message: 'El valor de need_reminder debe ser booleano (true o false)' });
+    }
 
     const newGoal = await ProfileGoal.create(userId, {
       name,
@@ -244,6 +340,7 @@ const createGoal = async (req, res, next) => {
       status,
       progress,
       deadline,
+      need_reminder
     });
     res.status(201).json({
       message: 'Objetivo creado correctamente',
@@ -259,6 +356,7 @@ const createGoal = async (req, res, next) => {
         deadline: newGoal.deadline,
         createdAt: newGoal.created_at,
         updatedAt: newGoal.updated_at,
+        need_reminder: newGoal.need_reminder
       },
     });
   } catch (error) {
@@ -350,7 +448,7 @@ const updateGoal = async (req, res, next) => {
   try {
     const userId = req.user.userId;
     const goalId = parseInt(req.params.id);
-    const { name, goal_type, description, target_hours_weekly, status, progress, deadline } = req.body;
+    const { name, goal_type, description, target_hours_weekly, status, progress, deadline, need_reminder } = req.body;
 
     // Validaciones
     if (!name && !goal_type && !description && target_hours_weekly === undefined && !status && progress === undefined && !deadline) {
@@ -368,6 +466,9 @@ const updateGoal = async (req, res, next) => {
     if (deadline && isNaN(Date.parse(deadline))) {
       return res.status(400).json({ message: 'Fecha límite inválida' });
     }
+    if (need_reminder !== undefined && typeof need_reminder !== 'boolean') {
+      return res.status(400).json({ message: 'El valor de need_reminder debe ser booleano (true o false)' });
+    }
 
     const updatedGoal = await ProfileGoal.update(goalId, userId, {
       name,
@@ -377,6 +478,7 @@ const updateGoal = async (req, res, next) => {
       status,
       progress,
       deadline,
+      need_reminder
     });
     res.status(200).json({
       message: 'Objetivo actualizado correctamente',
@@ -392,6 +494,7 @@ const updateGoal = async (req, res, next) => {
         deadline: updatedGoal.deadline,
         createdAt: updatedGoal.created_at,
         updatedAt: updatedGoal.updated_at,
+        need_reminder: updateGoal.need_reminder
       },
     });
   } catch (error) {
@@ -448,4 +551,5 @@ module.exports = {
   createGoal,
   updateGoal,
   deleteGoal,
+  getGoalsByUserId,
 };

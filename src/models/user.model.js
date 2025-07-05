@@ -167,6 +167,45 @@ const User = {
     }
   },
 
+  async getInterestsByUserId(userId, requesterId, requesterRole) {
+    try {
+      // Validar que el usuario solicitado existe
+      const [userRows] = await pool.query(
+        'SELECT user_id FROM users WHERE user_id = ?',
+        [userId]
+      );
+      if (!userRows[0]) {
+        throw new Error('Usuario no encontrado');
+      }
+
+      // Autorización: el requesterId debe ser el propio usuario o un guía con relación
+      if (requesterId !== userId) {
+        if (requesterRole !== 'guide') {
+          throw new Error('Solo los guías pueden acceder a los intereses de otros usuarios');
+        }
+        const [guideRows] = await pool.query(
+          'SELECT guide_user_id FROM guide_user WHERE guide_id = ? AND user_id = ?',
+          [requesterId, userId]
+        );
+        if (!guideRows[0]) {
+          throw new Error('No autorizado para acceder a los intereses de este usuario');
+        }
+      }
+
+      // Obtener intereses
+      const [rows] = await pool.query(
+        `SELECT pi.interest_id, pi.interest_name, pi.priority, pi.created_at
+         FROM profile_interests pi
+         JOIN profiles p ON pi.profile_id = p.profile_id
+         WHERE p.user_id = ?`,
+        [userId]
+      );
+      return rows;
+    } catch (error) {
+      throw new Error(`Error al obtener intereses: ${error.message}`);
+    }
+  },
+
   async addInterest(userId, { interest_name, priority }) {
     try {
       // Obtener profile_id
@@ -215,6 +254,18 @@ const User = {
       throw new Error(`Error al actualizar disponibilidad: ${error.message}`);
     }
   },
+
+  async getUserGuide(userId) {
+  const [guides] = await pool.query(
+  `SELECT u.first_name, u.last_name
+   FROM guide_user gu
+   JOIN users u ON gu.guide_id = u.user_id
+   JOIN profiles p ON u.user_id = p.user_id
+   WHERE gu.user_id = ? AND p.role = 'guide'`,
+  [userId]
+);
+  return guides;
+}
 };
 
 module.exports = User;

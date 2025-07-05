@@ -311,6 +311,83 @@ const getInterests = async (req, res, next) => {
 
 /**
  * @swagger
+ * /api/users/interests/{iduser}:
+ *   get:
+ *     summary: Obtiene los intereses de un usuario específico
+ *     description: Permite obtener los intereses de un usuario por su ID. Accesible solo si el usuario autenticado es el propio usuario o un guía con una relación en guide_user.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: iduser
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del usuario cuyos intereses se desean obtener
+ *     responses:
+ *       200:
+ *         description: Intereses obtenidos exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Intereses obtenidos correctamente
+ *                 interests:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       interest_id:
+ *                         type: integer
+ *                       interest_name:
+ *                         type: string
+ *                       priority:
+ *                         type: string
+ *                         enum: [low, medium, high]
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *       400:
+ *         description: ID de usuario inválido
+ *       401:
+ *         description: No autorizado, token inválido
+ *       403:
+ *         description: No autorizado para acceder a los intereses de este usuario
+ *       404:
+ *         description: Usuario no encontrado
+ */
+const getInterestsByUserId = async (req, res, next) => {
+  try {
+    const { iduser } = req.params;
+    const { userId, role } = req.user;
+
+    // Validar que iduser sea un número entero
+    if (!/^\d+$/.test(iduser)) {
+      return res.status(400).json({ message: 'El ID de usuario debe ser un número entero' });
+    }
+
+    const interests = await User.getInterestsByUserId(parseInt(iduser), userId, role);
+    res.status(200).json({
+      message: 'Intereses obtenidos correctamente',
+      interests,
+    });
+  } catch (error) {
+    if (error.message.includes('Usuario no encontrado')) {
+      return res.status(404).json({ message: error.message });
+    }
+    if (error.message.includes('No autorizado')) {
+      return res.status(403).json({ message: error.message });
+    }
+    next(error);
+  }
+};
+
+/**
+ * @swagger
  * /api/users/interests:
  *   post:
  *     summary: Añade un nuevo interés al usuario autenticado
@@ -380,6 +457,33 @@ const addInterest = async (req, res, next) => {
       interest: newInterest,
     });
   } catch (error) {
+    next(error);
+  }
+
+  
+};
+
+const getGuide = async (req, res, next) => {
+  try {
+    const { userid } = req.params;
+  
+    if (!/^\d+$/.test(userid)) {
+        return res.status(400).json({ message: 'El ID de usuario debe ser un número entero' });
+      }
+    
+    const guides = await User.getUserGuide(userid);
+
+    res.status(200).json({
+      message: 'Guias obtenidos correctamente',
+      guides
+    })
+  } catch (error) {
+    if (error.message.includes('Usuario no encontrado')) {
+      return res.status(404).json({ message: error.message });
+    }
+    if (error.message.includes('No autorizado')) {
+      return res.status(403).json({ message: error.message });
+    }
     next(error);
   }
 };
@@ -454,4 +558,6 @@ module.exports = {
   getInterests,
   addInterest,
   updateAvailability,
+  getInterestsByUserId,
+  getGuide
 };

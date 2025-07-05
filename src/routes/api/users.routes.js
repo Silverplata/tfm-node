@@ -6,11 +6,15 @@ const {
   getInterests,
   addInterest,
   updateAvailability,
+  getInterestsByUserId,
+  getGuide,
 } = require('../../controllers/users.controller');
 const { upload } = require('../../config/multer');
 
 router.get('/profile', checkToken, getProfile);
 router.get('/interests', checkToken, getInterests);
+router.get('/interests/:iduser', checkToken, getInterestsByUserId);
+router.get('/guide/:userid', checkToken, getGuide)
 
 router.post('/interests', checkToken, addInterest);
 

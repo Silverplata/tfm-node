@@ -623,4 +623,105 @@ const remove = async (req, res, next) => {
   }
 };
 
-module.exports = { getAll, getById, create, edit, remove };
+/**
+ * @swagger
+ * /api/activities/routine/{routineId}:
+ *   get:
+ *     summary: Obtiene actividades de una rutina filtradas por categoría
+ *     description: Devuelve actividades de una rutina específica, opcionalmente filtradas por categoría. Muestra el nombre de la categoría en lugar del ID.
+ *     tags: [Activities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: routineId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID de la rutina
+ *       - in: query
+ *         name: category_id
+ *         schema:
+ *           type: integer
+ *         description: ID de la categoría para filtrar (opcional)
+ *     responses:
+ *       200:
+ *         description: Actividades obtenidas exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Actividades obtenidas correctamente
+ *                 activities:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       activity_id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       day_of_week:
+ *                         type: string
+ *                       start_time:
+ *                         type: string
+ *                         format: time
+ *                       end_time:
+ *                         type: string
+ *                         format: time
+ *                       location:
+ *                         type: string
+ *                       datetime_start:
+ *                         type: string
+ *                         format: date-time
+ *                       datetime_end:
+ *                         type: string
+ *                         format: date-time
+ *                       icon:
+ *                         type: string
+ *                       category_name:
+ *                         type: string
+ *       400:
+ *         description: ID inválido
+ *       401:
+ *         description: No autorizado, token inválido
+ *       403:
+ *         description: No autorizado para acceder a estas actividades
+ *       500:
+ *         description: Error interno del servidor
+ */
+const getByRoutineAndCategory = async (req, res, next) => {
+  try {
+    const { routineId } = req.params;
+    const { category_id } = req.query;
+    const { userId, role } = req.user;
+
+    if (!/^\d+$/.test(routineId)) {
+      return res.status(400).json({ message: 'El ID de la rutina debe ser un número entero' });
+    }
+
+    const activities = await Activity.selectByRoutineAndCategory(
+      parseInt(routineId), 
+      category_id ? parseInt(category_id) : null,
+      userId, 
+      role
+    );
+    
+    res.status(200).json({
+      message: 'Actividades obtenidas correctamente',
+      activities,
+    });
+  } catch (error) {
+    if (error.message.includes('No autorizado')) {
+      return res.status(403).json({ message: error.message });
+    }
+    next(error);
+  }
+};
+
+module.exports = { getAll, getById, create, edit, remove, getByRoutineAndCategory };

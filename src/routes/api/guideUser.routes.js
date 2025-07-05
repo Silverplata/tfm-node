@@ -5,10 +5,12 @@ const {
   getAllGuideUserRelations,
   getGuideUserRelationById,
   deleteGuideUserRelation,
+  getUnassignedUsers
 } = require('../../controllers/guideUser.controller');
 
 router.post('/', checkToken, checkGuideRole, createGuideUser);
 router.get('/', checkToken, getAllGuideUserRelations);
+router.get('/unassigned-users', checkToken, checkGuideRole, getUnassignedUsers);
 router.get('/:guideUserId', checkToken, getGuideUserRelationById);
 router.delete('/:guideUserId', checkToken, deleteGuideUserRelation);
 
