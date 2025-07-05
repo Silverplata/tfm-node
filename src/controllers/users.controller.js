@@ -472,7 +472,7 @@ const getGuide = async (req, res, next) => {
       }
     
     const guides = await User.getUserGuide(userid);
-    console.log(guides)
+
     res.status(200).json({
       message: 'Guias obtenidos correctamente',
       guides

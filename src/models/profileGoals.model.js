@@ -108,7 +108,7 @@ const ProfileGoal = {
         throw new Error('Perfil no encontrado');
       }
       const profileId = profileRows[0].profile_id;
-      console.log(need_reminder)
+
       // Insertar objetivo
       const [result] = await pool.query(
         `INSERT INTO profile_goals (profile_id, name, goal_type, description, 
